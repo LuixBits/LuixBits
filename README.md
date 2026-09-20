@@ -1,36 +1,47 @@
-
 <div align="center">
-    <h2>🚀 About Me</h2>
-    <ul>
-      <p>Software Engineer / UX Designer </p>
-      <p>Technology, Tinkering, Linux</p>
-      <p>Passion project / master thesis: <a href="https://github.com/devluixos/TextSight">TextSight</a></p>
-    </ul>
-</div>
 
+# Hey, I'm Luix 👋
 
-<div id="header" align="center">
-  <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="100"/>
+**Software Engineer / UX Designer** — Technology, Tinkering, Linux
+
+<img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="100"/>
+
+![Profile Views](https://komarev.com/ghpvc/?username=LuixBits&color=8957e5&style=flat-square&label=Profile+views)
+
 </div>
 
 ---
+
 <div align="center">
-  
-### :fire: My Stats :
 
-#### 🔍 Visitors 🔎
+## 📊 Stats
 
-![Visitor Count](https://profile-counter.glitch.me/devluixos/count.svg)
+<img src="https://github-readme-stats.vercel.app/api?username=LuixBits&show_icons=true&theme=midnight-purple&include_all_commits=true&count_private=true&hide_border=true" height="165" alt="GitHub stats"/>
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=LuixBits&layout=compact&theme=midnight-purple&hide_border=true&langs_count=8" height="165" alt="Top languages"/>
 
-  <a href="https://git.io/streak-stats"><img src="http://github-readme-streak-stats.herokuapp.com?user=devluixos&theme=midnight-purple&mode=weekly" alt="GitHub Streak" /></a>
+<img src="https://streak-stats.demolab.com?user=LuixBits&theme=midnight-purple&hide_border=true" alt="GitHub streak"/>
+
 </div>
 
+---
+
 <div align="center">
 
- ![](http://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=devluixos&theme=discord_old_blurple) 
- ![](http://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=devluixos&theme=discord_old_blurple) 
- ![](http://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=devluixos&theme=discord_old_blurple)
- ![](http://github-profile-summary-cards.vercel.app/api/cards/stats?username=devluixos&theme=discord_old_blurple)
- ![](http://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=devluixos&theme=discord_old_blurple&utcOffset=2) 
- 
+## 🌟 Featured Projects
+
+<a href="https://github.com/LuixBits/luix_nix_config"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luix_nix_config&theme=midnight-purple&hide_border=true" alt="luix_nix_config"/></a>
+<a href="https://github.com/LuixBits/luixbits-roomplanner.nvim"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luixbits-roomplanner.nvim&theme=midnight-purple&hide_border=true" alt="luixbits-roomplanner.nvim"/></a>
+<a href="https://github.com/LuixBits/TextSight"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=TextSight&theme=midnight-purple&hide_border=true" alt="TextSight"/></a>
+<a href="https://github.com/LuixBits/luixbits-noctalia-plugins"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luixbits-noctalia-plugins&theme=midnight-purple&hide_border=true" alt="luixbits-noctalia-plugins"/></a>
+
+</div>
+
+---
+
+<div align="center">
+
+## 📈 Deep Metrics
+
+<img src="https://raw.githubusercontent.com/LuixBits/LuixBits/main/metrics.svg" alt="Detailed metrics (updated daily)"/>
+
 </div>
