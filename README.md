@@ -14,10 +14,22 @@
 
 <div align="center">
 
-## 📊 Stats
+## 🌟 Featured Projects
 
-<img src="https://github-readme-stats.vercel.app/api?username=LuixBits&show_icons=true&theme=midnight-purple&include_all_commits=true&count_private=true&hide_border=true" height="165" alt="GitHub stats"/>
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=LuixBits&layout=compact&theme=midnight-purple&hide_border=true&langs_count=8" height="165" alt="Top languages"/>
+| Project | About | Stats |
+|---|---|---|
+| [**luix_nix_config**](https://github.com/LuixBits/luix_nix_config) | My NixOS system configuration | ![Stars](https://img.shields.io/github/stars/LuixBits/luix_nix_config?style=flat-square&color=8957e5) ![Language](https://img.shields.io/github/languages/top/LuixBits/luix_nix_config?style=flat-square) |
+| [**luixbits-roomplanner.nvim**](https://github.com/LuixBits/luixbits-roomplanner.nvim) | Terminal-native flat planning for Neovim | ![Stars](https://img.shields.io/github/stars/LuixBits/luixbits-roomplanner.nvim?style=flat-square&color=8957e5) ![Language](https://img.shields.io/github/languages/top/LuixBits/luixbits-roomplanner.nvim?style=flat-square) |
+| [**TextSight**](https://github.com/LuixBits/TextSight) | Master thesis — visualising connections between information with AI | ![Stars](https://img.shields.io/github/stars/LuixBits/TextSight?style=flat-square&color=8957e5) ![Language](https://img.shields.io/github/languages/top/LuixBits/TextSight?style=flat-square) |
+| [**luixbits-noctalia-plugins**](https://github.com/LuixBits/luixbits-noctalia-plugins) | Collection of Noctalia plugins | ![Stars](https://img.shields.io/github/stars/LuixBits/luixbits-noctalia-plugins?style=flat-square&color=8957e5) ![Language](https://img.shields.io/github/languages/top/LuixBits/luixbits-noctalia-plugins?style=flat-square) |
+
+</div>
+
+---
+
+<div align="center">
+
+## 🔥 Streak
 
 <img src="https://streak-stats.demolab.com?user=LuixBits&theme=midnight-purple&hide_border=true" alt="GitHub streak"/>
 
@@ -27,20 +39,9 @@
 
 <div align="center">
 
-## 🌟 Featured Projects
+## 📈 Metrics
 
-<a href="https://github.com/LuixBits/luix_nix_config"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luix_nix_config&theme=midnight-purple&hide_border=true" alt="luix_nix_config"/></a>
-<a href="https://github.com/LuixBits/luixbits-roomplanner.nvim"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luixbits-roomplanner.nvim&theme=midnight-purple&hide_border=true" alt="luixbits-roomplanner.nvim"/></a>
-<a href="https://github.com/LuixBits/TextSight"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=TextSight&theme=midnight-purple&hide_border=true" alt="TextSight"/></a>
-<a href="https://github.com/LuixBits/luixbits-noctalia-plugins"><img src="https://github-readme-stats.vercel.app/api/pin/?username=LuixBits&repo=luixbits-noctalia-plugins&theme=midnight-purple&hide_border=true" alt="luixbits-noctalia-plugins"/></a>
-
-</div>
-
----
-
-<div align="center">
-
-## 📈 Deep Metrics
+*Languages, commits, stars, repo traffic & more — regenerated daily by a GitHub Action in this repo.*
 
 <img src="https://raw.githubusercontent.com/LuixBits/LuixBits/main/metrics.svg" alt="Detailed metrics (updated daily)"/>
 
