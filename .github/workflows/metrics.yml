@@ -24,17 +24,11 @@ jobs:
           config_timezone: Europe/Zurich
           plugins_errors_fatal: no
 
-          # Languages: computed from actual commit history, not just repo bytes
+          # Languages: GitHub's per-repo language data
           plugin_languages: yes
-          plugin_languages_analysis_timeout: 15
           plugin_languages_details: bytes-size, percentage
           plugin_languages_limit: 8
-          plugin_languages_indepth: yes
           plugin_languages_ignored: html, css
-
-          # Stars: top starred repos + totals
-          plugin_stars: yes
-          plugin_stars_limit: 4
 
           # Visitors: page views across your repos (needs METRICS_TOKEN with repo scope)
           plugin_traffic: yes
