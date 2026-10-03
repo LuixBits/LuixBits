@@ -22,11 +22,11 @@ jobs:
           GH_TOKEN: ${{ secrets.METRICS_TOKEN || github.token }}
         run: |
           python3 generate.py --fetch
-          python3 generate.py --out assets
+          python3 generate.py --out assets --readme README.md
 
       - name: commit if the forest changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets data.json
+          git add assets data.json README.md
           git diff --cached --quiet || { git commit -m "chore: the forest regrows [skip ci]"; git push; }

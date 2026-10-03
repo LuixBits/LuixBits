@@ -252,8 +252,28 @@ T_LIGHT = dict(
 # One continuous poster: every section paints its slice of this master ramp,
 # so the README reads as a single scene with no GitHub background in between.
 SEC_BTN, SEC_RIDGE, SEC_RANGE, SEC_CONTRIB, SEC_LANG, SEC_FIRE = 320, 376, 744, 894, 1062, 1238
-RAMP_DARK = [(320, "#0A1A10"), (744, "#08160D"), (1238, "#05110A"), (1360, "#040E09")]
-RAMP_LIGHT = [(320, "#EFF5EC"), (744, "#E9F1E5"), (1238, "#DFE9DA"), (1360, "#DCE6D7")]
+SEC_VIDEOS = 1238
+CHANNEL_ID = "UCRfvtmLL6FNOKOfDn81rqig"
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def fmt_ym(ym):
+    return f"{MONTH_ABBR[int(ym[5:7]) - 1]} {ym[:4]}"
+
+
+def fmt_date(day):
+    return f"{int(day[8:10])} {MONTH_ABBR[int(day[5:7]) - 1]} {day[:4]}"
+
+
+def cutoff30():
+    f = datetime.date.fromisoformat(DATA.get("fetched", "2026-10-04"))
+    return (f - datetime.timedelta(days=30)).isoformat()
+
+
+def esc(x):
+    return x.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+RAMP_DARK = [(320, "#0A1A10"), (744, "#08160D"), (1238, "#05110A"), (1560, "#040E09")]
+RAMP_LIGHT = [(320, "#EFF5EC"), (744, "#E9F1E5"), (1238, "#DFE9DA"), (1560, "#DCE6D7")]
 
 
 def bgcol(t, y):
@@ -550,6 +570,13 @@ def star_ridges(t):
               f'<animateMotion dur="{11 + i * 2.5:.0f}s" begin="{2.6 + i * .25:.2f}s" '
               f'repeatCount="indefinite"><mpath href="#rp" xlink:href="#rp"/></animateMotion></circle>')
         s += f'<text x="{lx + 13:.0f}" y="{ly + 4.5:.0f}" font-size="12.5" fill="{t["ink"]}">{stars}</text>'
+        n30 = sum(1 for s_ in h.get("starred", []) if s_ >= cutoff30())
+        if n30:
+            s += (f'<text x="846" y="{ly + 18:.0f}" font-size="9" text-anchor="end" '
+                  f'fill="{t["faint"]}">+{n30} in 30d</text>')
+        s += (f'<text x="{x0}" y="86" font-size="9" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
+              f'<text x="{x1}" y="86" font-size="9" text-anchor="end" '
+              f'fill="{t["faint"]}">{fmt_ym(months[-1])}</text>')
         (OUT / f"ridge-{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -601,6 +628,13 @@ def star_range(t):
           f'<path transform="translate({lx:.1f},{ly - 1:.1f}) scale(.75)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
           f'<text x="{lx - 14:.0f}" y="{ly - 10:.0f}" font-size="13" text-anchor="end" '
           f'fill="{t["ink"]}">{total}</text>')
+    n30 = sum(1 for s_ in dates if s_ >= cutoff30())
+    if n30:
+        s += (f'<text x="{lx - 14:.0f}" y="{ly - 24:.0f}" font-size="9" text-anchor="end" '
+              f'fill="{t["faint"]}">+{n30} in 30d</text>')
+    s += (f'<text x="{x0}" y="142" font-size="9" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
+          f'<text x="{x1}" y="142" font-size="9" text-anchor="end" '
+          f'fill="{t["faint"]}">{fmt_ym(months[-1])}</text>')
     s += (f'<circle r="1.7" fill="{FIREFLY if not t["light"] else t["gold"]}" opacity=".9">'
           f'<animateMotion dur="16s" begin="2.8s" repeatCount="indefinite">'
           f'<mpath href="#rp" xlink:href="#rp"/></animateMotion></circle>')
@@ -635,6 +669,10 @@ def contribution_forest(t):
         tops.append((v, x, base_y - h))
     s += trees
     s += f'<rect x="30" y="{base_y}" width="820" height="2" rx="1" fill="{t["ground"]}"/>'
+    end_ym = DATA.get("fetched", "2026-10")[:7]
+    s += (f'<text x="34" y="162" font-size="10" fill="{t["faint"]}">{total:,} contributions</text>'
+          f'<text x="846" y="162" font-size="10" text-anchor="end" fill="{t["faint"]}">'
+          f'{fmt_ym(_month_add(end_ym, -12))} → {fmt_ym(end_ym)}</text>')
     s += ('<filter id="f_fog" x="-10%" y="-200%" width="120%" height="500%">'
           '<feGaussianBlur stdDeviation="6"/></filter>')
     fog = "#B9D6C1" if not t["light"] else "#FFFFFF"
@@ -669,11 +707,36 @@ def languages(t):
               f'<rect class="grow" style="--dd:{k * .12:.2f}s" x="150" y="{y - 7}" '
               f'width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
               f'<text x="846" y="{y}" font-size="11" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
+    s += (f'<text x="846" y="166" font-size="9.5" text-anchor="end" fill="{t["faint"]}">'
+          f'{DATA.get("n_repos", 29)} public repos · {total / 1e6:.1f} MB of source</text>')
     if not t["light"]:
         for fx, fy, fp, fd in ((612, 164, 5.2, 1.1), (247, 168, 6.4, 3.0)):
             s += (f'<circle class="ffp" style="--p:{fp}s;--dd:{fd}s" cx="{fx}" cy="{fy}" '
                   f'r="1.5" fill="{FIREFLY}"/>')
     (OUT / f"languages{t['sfx']}.svg").write_text(s + "</svg>")
+
+
+def videos(t):
+    """jdx's writing section, pointed at the YouTube channel: latest uploads
+    as clickable rows, title and date only."""
+    vids = DATA.get("videos", [])[:3]
+    for i, v in enumerate(vids):
+        W, H = 880, 54
+        s = svg_open(W, H, esc(v["title"]), f"YouTube video, published {fmt_date(v['published'])}.")
+        s += section_bg(t, SEC_VIDEOS + i * 54, H)
+        if i < len(vids) - 1:
+            s += (f'<rect x="0" y="{H - 1}" width="880" height="1" '
+                  f'fill="{"#D6E1D2" if t["light"] else "#102416"}"/>')
+        s += (f'<rect x="34" y="14" width="26" height="26" rx="6" fill="{t["inset"]}" '
+              f'stroke="{t["iline"]}" stroke-width="1.25"/>'
+              f'<polygon points="44,21.5 44,32.5 53,27" fill="{t["icon"]}"/>')
+        title = v["title"]
+        if len(title) > 66:
+            title = title[:65] + "…"
+        s += f'<text x="74" y="31.5" font-size="13" fill="{t["ink"]}">{esc(title)}</text>'
+        s += (f'<text x="846" y="31.5" font-size="10" text-anchor="end" '
+              f'fill="{t["faint"]}">{fmt_date(v["published"])}</text>')
+        (OUT / f"videos-{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
 def campfire(t):
@@ -754,6 +817,7 @@ def fetch_live():
                 agg[k] = agg.get(k, 0) + v
         if agg:
             data["langs"] = agg
+            data["n_repos"] = len(repos)
     except Exception as e:
         print("languages fetch failed, keeping old:", e)
     try:
@@ -783,9 +847,77 @@ def fetch_live():
             data["cal_total"] = cc["totalContributions"]
         except Exception as e:
             print("calendar fetch failed, keeping old:", e)
+    try:
+        import urllib.request
+        import xml.etree.ElementTree as ET
+        req = urllib.request.Request(
+            f"https://www.youtube.com/feeds/videos.xml?channel_id={CHANNEL_ID}",
+            headers={"User-Agent": "forest-profile"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            root = ET.fromstring(r.read())
+        ns = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
+        vids = [{"title": e.find("a:title", ns).text,
+                 "id": e.find("yt:videoId", ns).text,
+                 "published": e.find("a:published", ns).text[:10]}
+                for e in root.findall("a:entry", ns)[:3]]
+        if vids:
+            data["videos"] = vids
+    except Exception as e:
+        print("videos fetch failed, keeping old:", e)
     data["fetched"] = datetime.date.today().isoformat()
     path.write_text(json.dumps(data))
     print("data.json refreshed", data["fetched"])
+
+
+def _pic(base, alt, width):
+    return (f'<picture><source media="(prefers-color-scheme: dark)" srcset="assets/{base}.svg">'
+            f'<img src="assets/{base}-light.svg" width="{width}" align="top" alt="{esc(alt)}"></picture>')
+
+
+def build_readme():
+    hist = DATA.get("star_history", {})
+    rh = DATA.get("range_history", {})
+    end_ym = DATA.get("fetched", "2026-10")[:7]
+    out = ["<!-- One continuous poster: pre-rendered SVG slices of a single scene, drawn by",
+           "     generate.py from real data and regenerated nightly by forest.yml.",
+           "     Architecture after jdx/jdx. The forest art is original. -->",
+           '<p align="center">',
+           '<picture><source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg">'
+           '<img src="assets/header-light.svg" width="100%" align="top" alt="LuixBits — Software Engineer '
+           '· UX Designer · NixOS. A forest under the real moon phase, with the season\'s weather."></picture>',
+           _pic("link-site", "luizperren.dev — coming soon", "25%")
+           + '<a href="https://www.youtube.com/@LuixBits">' + _pic("link-youtube", "YouTube", "25%") + "</a>"
+           + '<a href="https://www.doctorswithoutborders.org/">'
+           + _pic("link-sponsor", "Sponsor — greyed out for now; the link forwards to Doctors Without Borders", "25%") + "</a>"
+           + '<a href="mailto:contact@luizperren.dev">' + _pic("link-contact", "Contact", "25%") + "</a>"]
+    for i, (name, desc, _lang) in enumerate(WAYPOINTS):
+        created = hist.get(name, {}).get("created", end_ym)[:7]
+        alt = (f"{name} — {desc} Star ridge: cumulative stars since {fmt_ym(created)}, "
+               f"now {DATA['stars'].get(name, 0)}.")
+        out.append(f'<a href="https://github.com/{LOGIN}/{name}">' + _pic(f"ridge-{i + 1}", alt, "100%") + "</a>")
+    first = rh.get("starred", [end_ym + "-01"])[0][:7]
+    out.append(_pic("range", f"The range: {rh.get('total', 0)} cumulative stars across all public repos "
+                             f"since {fmt_ym(first)}, drawn as a mountain panorama.", "100%"))
+    out.append(_pic("contribution-forest", f"Contribution forest: one pine per day, {DATA.get('cal_total', 0):,} "
+                                           f"contributions from {fmt_ym(_month_add(end_ym, -12))} to {fmt_ym(end_ym)}.", "100%"))
+    out.append(_pic("languages", "Languages by bytes across all public repos: Lua 52%, Svelte 19%, "
+                                 "TypeScript, Nix, Vue.", "100%"))
+    for i, v in enumerate(DATA.get("videos", [])[:3]):
+        out.append(f'<a href="https://www.youtube.com/watch?v={v["id"]}">'
+                   + _pic(f"videos-{i + 1}", f"Video: {v['title']} ({fmt_date(v['published'])})", "100%") + "</a>")
+    out.append(_pic("campfire", "A campsite: tent, campfire, pines and a blinking owl. "
+                                "The fire burns at night; by day, smoke and birds.", "100%"))
+    out.append("</p>")
+    out.append("""
+<details><summary>more stats</summary>
+<br>
+<p align="center">
+<img src="https://komarev.com/ghpvc/?username=LuixBits&color=4f8a63&style=flat-square&label=Profile+views" alt="Profile views"><br><br>
+<img src="https://streak-stats.demolab.com?user=LuixBits&hide_border=true&background=0A1C12&ring=6BBF7B&fire=D9A441&currStreakLabel=6BBF7B&sideLabels=9CB9A4&currStreakNum=ECF5EC&sideNums=ECF5EC&dates=6F8F7B" alt="GitHub streak"><br><br>
+<img src="metrics.svg" alt="Detailed metrics, regenerated daily">
+</p>
+</details>""")
+    return "\n".join(out) + "\n"
 
 
 if __name__ == "__main__":
@@ -797,6 +929,8 @@ if __name__ == "__main__":
         OUT = pathlib.Path(sys.argv[sys.argv.index("--out") + 1])
     OUT.mkdir(parents=True, exist_ok=True)
     DATA = json.loads((HERE / "data.json").read_text())
+    if DATA.get("videos"):
+        SEC_FIRE = SEC_VIDEOS + 54 * min(3, len(DATA["videos"]))
 
     header(NIGHT, "header-dark.svg")
     header(DAY, "header-light.svg")
@@ -807,7 +941,12 @@ if __name__ == "__main__":
         button(t, "link-contact", "mail", "Contact")
         star_ridges(t)
         star_range(t)
+        videos(t)
         contribution_forest(t)
         languages(t)
         campfire(t)
+    if "--readme" in sys.argv:
+        rp = pathlib.Path(sys.argv[sys.argv.index("--readme") + 1])
+        rp.write_text(build_readme())
+        print("wrote", rp)
     print("rendered:", len(list(OUT.glob("*.svg"))), "SVGs in", OUT)
