@@ -826,6 +826,16 @@ def gh_json(url, tok, payload=None, accept=None):
         return json.loads(r.read())
 
 
+def gh_json_pub(url, tok, accept=None):
+    """Public-data fetch: try the token, fall back to anonymous — the Actions
+    installation token 403s on repos it has no grant for, where anonymous
+    access would succeed."""
+    try:
+        return gh_json(url, tok, accept=accept)
+    except Exception:
+        return gh_json(url, None, accept=accept)
+
+
 def fetch_live():
     tok = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     path = HERE / "data.json"
@@ -850,12 +860,12 @@ def fetch_live():
     try:
         hist = {}
         for r in FEATURED:
-            created = gh_json(f"https://api.github.com/repos/{LOGIN}/{r}", tok)["created_at"][:10]
+            created = gh_json_pub(f"https://api.github.com/repos/{LOGIN}/{r}", tok)["created_at"][:10]
             starred = []
             for page in range(1, 5):
-                batch = gh_json(f"https://api.github.com/repos/{LOGIN}/{r}/stargazers"
-                                f"?per_page=100&page={page}", tok,
-                                accept="application/vnd.github.star+json")
+                batch = gh_json_pub(f"https://api.github.com/repos/{LOGIN}/{r}/stargazers"
+                                    f"?per_page=100&page={page}", tok,
+                                    accept="application/vnd.github.star+json")
                 starred += [x["starred_at"][:10] for x in batch]
                 if len(batch) < 100:
                     break
@@ -863,6 +873,23 @@ def fetch_live():
         data["star_history"] = hist
     except Exception as e:
         print("star history fetch failed, keeping old:", e)
+    try:
+        repos = [x["name"] for x in
+                 gh_json_pub(f"https://api.github.com/users/{LOGIN}/repos?per_page=100", tok)
+                 if not x["fork"]]
+        allstars = []
+        for r in repos:
+            for page in range(1, 5):
+                batch = gh_json_pub(f"https://api.github.com/repos/{LOGIN}/{r}/stargazers"
+                                    f"?per_page=100&page={page}", tok,
+                                    accept="application/vnd.github.star+json")
+                allstars += [x["starred_at"][:10] for x in batch]
+                if len(batch) < 100:
+                    break
+        if allstars:
+            data["range_history"] = {"starred": sorted(allstars), "total": len(allstars)}
+    except Exception as e:
+        print("range history fetch failed, keeping old:", e)
     if tok:
         try:
             q = ("query($login:String!){user(login:$login){contributionsCollection{"
