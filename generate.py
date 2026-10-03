@@ -740,47 +740,74 @@ def videos(t):
 
 
 def campfire(t):
+    """The footer: a fuller campsite, plus the two numbers that belong here —
+    profile visitors (read nightly from the komarev counter that keeps
+    ticking inside the collapsed details) and the regeneration date."""
     W, H = 880, 120
-    s = svg_open(W, H, "Campfire", "A campsite. At night the fire burns; by day, smoke and birds.")
+    visitors = DATA.get("visitors", 0)
+    s = svg_open(W, H, "Campfire",
+                 f"A campsite: tent, fire, pines, owl. {visitors:,} profile visitors so far.")
     s += section_bg(t, SEC_FIRE, H)
+    rngc = random.Random(5)
+    s += treeline(rngc, 92, 20, 860, (6, 14), (4, 7), (8, 16),
+                  "#CBD9C6" if t["light"] else "#0B1D11", 0.9, 94)
     s += f'<rect x="24" y="94" width="832" height="1.5" fill="{t["ground"]}"/>'
-    s += (f'<polygon points="192,94 230,48 268,94" fill="{t["inset"]}" stroke="{t["iline"]}" stroke-width="1.5"/>'
-          f'<line x1="230" y1="48" x2="230" y2="94" stroke="{t["iline"]}" stroke-width="1.2"/>'
-          f'<polyline points="220,94 230,72 240,94" fill="none" stroke="{t["iline"]}" stroke-width="1.2"/>')
+    if not t["light"]:
+        s += f'<polygon points="141,94 150,72 159,94" fill="{FIREFLY}" opacity=".2"/>'
+    s += (f'<polygon points="112,94 150,48 188,94" fill="{t["inset"]}" stroke="{t["iline"]}" stroke-width="1.5"/>'
+          f'<line x1="150" y1="48" x2="150" y2="94" stroke="{t["iline"]}" stroke-width="1.2"/>'
+          f'<polyline points="140,94 150,72 160,94" fill="none" stroke="{t["iline"]}" stroke-width="1.2"/>')
+    s += (f'<rect x="312" y="85" width="36" height="6" rx="3" fill="{CRACK}"/>'
+          f'<rect x="391" y="83" width="14" height="9" rx="1.5" fill="#7A5C3E"/>'
+          f'<ellipse cx="398" cy="83" rx="7" ry="2.6" fill="{WOOD}" stroke="{RING}" stroke-width=".75"/>')
     s += (pines_g(560, 94, 26, 9, t["tree1"]) + pines_g(592, 94, 17, 6.5, t["tree2"], tiers=2)
+          + pines_g(620, 94, 12, 5, t["tree2"], tiers=2)
           + pines_g(676, 94, 22, 7.5, t["tree1"]) + pines_g(706, 94, 14, 5.5, t["tree2"], tiers=2)
-          + pines_g(744, 94, 19, 7, t["tree1"], tiers=2))
-    s += (f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(330,92) rotate(18)" fill="{CRACK}"/>'
-          f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(330,92) rotate(-18)" fill="{CRACK}"/>')
+          + pines_g(744, 94, 19, 7, t["tree1"], tiers=2) + pines_g(800, 94, 15, 6, t["tree2"], tiers=2))
+    s += (f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(270,92) rotate(18)" fill="{CRACK}"/>'
+          f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(270,92) rotate(-18)" fill="{CRACK}"/>')
     if t["ff"]:
         s += ('<radialGradient id="g_fire"><stop offset="0" stop-color="#FFD36E" stop-opacity=".55"/>'
               '<stop offset="1" stop-color="#FFD36E" stop-opacity="0"/></radialGradient>'
-              '<circle cx="330" cy="76" r="36" fill="url(#g_fire)"/>')
-        s += ('<g transform="translate(330,89)">'
+              '<circle cx="270" cy="76" r="36" fill="url(#g_fire)"/>')
+        s += ('<g transform="translate(270,89)">'
               '<path class="fl" style="--fd:.95s" d="M0,0 C-9,-9 -7,-21 0,-30 C7,-21 9,-9 0,0" fill="#D9A441"/>'
               '<path class="fl" style="--fd:1.25s" d="M0,0 C-6,-6 -4.8,-14 0,-20 C4.8,-14 6,-6 0,0" fill="#FFD36E"/>'
               '<path class="fl" style="--fd:.8s" d="M0,0 C-3.5,-4 -2.8,-8.5 0,-12 C2.8,-8.5 3.5,-4 0,0" fill="#FFF2C9"/>'
               "</g>")
-        for sx, dd_, dl in ((323, 2.4, 0.3), (330, 3.1, 1.2), (337, 2.7, 0.7), (327, 3.5, 2.0)):
+        for sx, dd_, dl in ((263, 2.4, 0.3), (270, 3.1, 1.2), (277, 2.7, 0.7), (267, 3.5, 2.0)):
             s += (f'<circle class="spk" style="--d:{dd_}s;--dd:{dl}s" cx="{sx}" cy="62" r="1.2" '
                   f'fill="{FIREFLY}"/>')
         for pr, pp, pdd in ((4, 5.2, 0), (5, 6.6, 1.8), (6, 8, 3.6)):
-            s += (f'<circle class="puff" style="--p:{pp}s;--dd:{pdd}s" cx="330" cy="52" r="{pr}" '
+            s += (f'<circle class="puff" style="--p:{pp}s;--dd:{pdd}s" cx="270" cy="52" r="{pr}" '
                   f'fill="#9CB9A4"/>')
-        s += ('<g transform="translate(676,64)">'
+        s += ('<g transform="translate(560,63)">'
               '<path d="M-3.5,-4.5 L-2,-8 L-.5,-4.8 Z" fill="#1E4530"/>'
               '<path d="M.5,-4.8 L2,-8 L3.5,-4.5 Z" fill="#1E4530"/>'
               '<ellipse cx="0" cy="0" rx="4" ry="5.2" fill="#1E4530"/>'
               '<g class="owl" style="--dd:2s">'
               f'<circle cx="-1.5" cy="-1.5" r=".9" fill="{FIREFLY}"/>'
               f'<circle cx="1.5" cy="-1.5" r=".9" fill="{FIREFLY}"/></g></g>')
+        for fx, fy, fp, fd in ((436, 72, 5.1, 0.7), (633, 80, 6.3, 2.4), (735, 56, 4.6, 1.5)):
+            s += (f'<circle class="ffp" style="--p:{fp}s;--dd:{fd}s" cx="{fx}" cy="{fy}" '
+                  f'r="1.5" fill="{FIREFLY}"/>')
     else:
-        s += (f'<path class="smoke" d="M330,86 C322,70 340,58 332,42 C326,30 334,22 330,10" '
+        s += (f'<path class="smoke" d="M270,86 C262,70 280,58 272,42 C266,30 274,22 270,10" '
               f'fill="none" stroke="{t["dim"]}" stroke-width="2" stroke-linecap="round" opacity=".4"/>')
-        for bx, by, sc in ((560, 40, 0.9), (604, 28, 0.7)):
+        for bx, by, sc in ((520, 38, 0.9), (564, 26, 0.7)):
             s += (f'<path d="M{bx},{by} q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0 '
                   f'q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0" stroke="{STEM}" '
                   f'stroke-width="{1.4 * sc:.1f}" fill="none" stroke-linecap="round" opacity=".6"/>')
+    for k, fx in enumerate((744, 764, 784)):
+        fy = 105 - k * 2.2
+        s += (f'<ellipse transform="rotate(14 {fx} {fy:.0f})" cx="{fx}" cy="{fy:.0f}" rx="2" ry="1.1" '
+              f'fill="{t["faint"]}" opacity=".45"/>'
+              f'<ellipse transform="rotate(14 {fx + 5} {fy + 2.5:.0f})" cx="{fx + 5}" cy="{fy + 2.5:.0f}" '
+              f'rx="2" ry="1.1" fill="{t["faint"]}" opacity=".45"/>')
+    s += (f'<text x="846" y="54" font-size="12.5" text-anchor="end" fill="{t["ink"]}">'
+          f'{visitors:,} visitors</text>'
+          f'<text x="846" y="72" font-size="9.5" text-anchor="end" fill="{t["faint"]}">'
+          f'regrown {fmt_date(DATA.get("fetched", "2026-10-04"))}</text>')
     (OUT / f"campfire{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -864,6 +891,17 @@ def fetch_live():
             data["videos"] = vids
     except Exception as e:
         print("videos fetch failed, keeping old:", e)
+    try:
+        import re
+        import urllib.request
+        req = urllib.request.Request("https://komarev.com/ghpvc/?username=LuixBits",
+                                     headers={"User-Agent": "forest-profile"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            nums = re.findall(r">([0-9][0-9,]*)<", r.read().decode())
+        if nums:
+            data["visitors"] = int(nums[-1].replace(",", ""))
+    except Exception as e:
+        print("visitors fetch failed, keeping old:", e)
     data["fetched"] = datetime.date.today().isoformat()
     path.write_text(json.dumps(data))
     print("data.json refreshed", data["fetched"])
@@ -905,8 +943,8 @@ def build_readme():
     for i, v in enumerate(DATA.get("videos", [])[:3]):
         out.append(f'<a href="https://www.youtube.com/watch?v={v["id"]}">'
                    + _pic(f"videos-{i + 1}", f"Video: {v['title']} ({fmt_date(v['published'])})", "100%") + "</a>")
-    out.append(_pic("campfire", "A campsite: tent, campfire, pines and a blinking owl. "
-                                "The fire burns at night; by day, smoke and birds.", "100%"))
+    out.append(_pic("campfire", f"A campsite: tent, campfire, pines and a blinking owl. "
+                                f"{DATA.get('visitors', 0):,} profile visitors so far.", "100%"))
     out.append("</p>")
     out.append("""
 <details><summary>more stats</summary>
