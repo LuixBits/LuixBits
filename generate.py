@@ -855,10 +855,16 @@ def fetch_live():
                  "{edges{starredAt}}}}}}")
             res = gh_json("https://api.github.com/graphql", tok,
                           {"query": q, "variables": {"login": LOGIN}})
-            nodes = res["data"]["user"]["repositories"]["nodes"]
+            if res.get("errors"):
+                print("history graphql errors:", str(res["errors"])[:300])
+            nodes = (((res.get("data") or {}).get("user") or {})
+                     .get("repositories") or {}).get("nodes") or []
             hist, allstars = {}, []
             for n in nodes:
-                dates = sorted(e["starredAt"][:10] for e in n["stargazers"]["edges"])
+                if not n:
+                    continue
+                sg = n.get("stargazers") or {}
+                dates = sorted(e["starredAt"][:10] for e in sg.get("edges") or [] if e)
                 allstars += dates
                 if n["name"] in FEATURED:
                     hist[n["name"]] = {"created": n["createdAt"][:10], "starred": dates}
