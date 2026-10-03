@@ -88,13 +88,38 @@ COMMON_CSS = (
     "@keyframes spk{0%{transform:translateY(0);opacity:.85}100%{transform:translateY(-30px);opacity:0}}"
     "@keyframes smk{from{opacity:.22}to{opacity:.55}}"
     "@keyframes br{from{opacity:.45}to{opacity:1}}"
+    ".sway{animation:sway var(--p,14s) ease-in-out infinite alternate}"
+    ".hike{animation:hike 85s linear infinite}"
+    ".bob{animation:bob .7s ease-in-out infinite alternate}"
+    ".shoot{animation:shoot 13s linear 4s infinite;opacity:0}"
+    ".cloud{animation:cloud var(--p,150s) linear var(--dd,0s) infinite}"
+    ".flut{transform-box:fill-box;transform-origin:center;animation:flut .22s ease-in-out infinite alternate}"
+    ".grow{transform-box:fill-box;transform-origin:left center;animation:grow .9s ease-out var(--dd,0s) both}"
+    ".puff{animation:puff var(--p,6s) ease-out var(--dd,0s) infinite;opacity:0}"
+    ".owl{animation:owl 7s linear var(--dd,0s) infinite}"
+    ".draw{animation:draw 2.2s ease-out var(--dd,.2s) both}"
+    ".fade{animation:fade 1.2s ease-out var(--dd,1s) both;opacity:0}"
+    "@keyframes sway{from{transform:skewX(.5deg)}to{transform:skewX(-.5deg)}}"
+    "@keyframes hike{from{transform:translate(930px,281px)}to{transform:translate(-70px,281px)}}"
+    "@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-1.6px)}}"
+    "@keyframes shoot{0%{transform:translate(690px,28px);opacity:0}2%{opacity:.9}"
+    "6%{transform:translate(470px,88px);opacity:0}100%{transform:translate(470px,88px);opacity:0}}"
+    "@keyframes cloud{from{transform:translateX(-200px)}to{transform:translateX(1080px)}}"
+    "@keyframes flut{from{transform:scaleX(1)}to{transform:scaleX(.35)}}"
+    "@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}"
+    "@keyframes puff{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.35}"
+    "100%{transform:translateY(-34px) scale(1.4);opacity:0}}"
+    "@keyframes owl{0%,91%,96%,100%{opacity:1}93%,94.5%{opacity:0}}"
+    "@keyframes draw{from{stroke-dashoffset:var(--len,1000)}to{stroke-dashoffset:0}}"
+    "@keyframes fade{from{opacity:0}to{opacity:1}}"
     "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
 )
 
 
 def svg_open(w, h, title, desc):
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+        f'width="{w}" height="{h}" '
         f'viewBox="0 0 {w} {h}" role="img" aria-labelledby="t d">'
         f"<title id=\"t\">{title}</title><desc id=\"d\">{desc}</desc>"
         f"<style>{COMMON_CSS}</style>"
@@ -285,7 +310,16 @@ def header(p, fname):
         s += (f'<clipPath id="mc"><circle cx="{ox}" cy="{oy}" r="{orb_r}"/></clipPath>'
               f'<circle clip-path="url(#mc)" cx="{ox + dx:.1f}" cy="{oy}" r="{orb_r}" '
               f'fill="#08190F" opacity=".93"/>')
-    else:
+        s += ('<g class="shoot"><line x1="2" y1="-0.7" x2="30" y2="-10" stroke="#DFF0E2" '
+              'stroke-width="1.4" stroke-linecap="round" opacity=".7"/>'
+              '<circle r="1.7" fill="#FFFFFF"/></g>')
+    else:  # morning clouds and birds
+        blob = ('<ellipse cx="0" cy="0" rx="46" ry="12"/><ellipse cx="32" cy="5" rx="34" ry="10"/>'
+                '<ellipse cx="-30" cy="6" rx="30" ry="9"/>')
+        s += (f'<g class="cloud" style="--p:150s"><g transform="translate(0,52)" fill="#FFFFFF" '
+              f'opacity=".5">{blob}</g></g>'
+              f'<g class="cloud" style="--p:210s;--dd:-90s"><g transform="translate(0,92) scale(.7)" '
+              f'fill="#FFFFFF" opacity=".35">{blob}</g></g>')
         for bx, by, sc in ((235, 96, 1.0), (278, 80, 0.78), (322, 110, 0.6)):
             s += (f'<path d="M{bx},{by} q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0 '
                   f'q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0" stroke="{STEM}" '
@@ -297,7 +331,18 @@ def header(p, fname):
     drift = [(18, 38), (-22, 52), (14, 44)]
     for i, (base, h_rng, w_rng, step, color, op, damp) in enumerate(p["layers"]):
         band_to = p["layers"][i + 1][0] + 10 if i + 1 < len(p["layers"]) else H + 8
-        s += treeline(rng, base, -16, W + 16, h_rng, w_rng, step, color, op, band_to, damp)
+        if i == 3 and p["star"]:
+            s += ('<g class="hike"><g class="bob">'
+                  '<circle cx="0" cy="-12.5" r="2.6" fill="#07130C"/>'
+                  '<path d="M-2.8,0 C-3.2,-7.5 3.2,-7.5 2.8,0 Z" fill="#07130C"/>'
+                  '<line x1="2.4" y1="-6" x2="7.2" y2="-2.5" stroke="#07130C" stroke-width="1.5"/>'
+                  '<circle cx="8" cy="-0.5" r="6.5" fill="url(#g_ff)" opacity=".75"/>'
+                  f'<circle cx="8" cy="-0.5" r="1.9" fill="{FIREFLY}"/>'
+                  '</g></g>')
+        tl = treeline(rng, base, -16, W + 16, h_rng, w_rng, step, color, op, band_to, damp)
+        if i < 2:
+            tl = f'<g class="sway" style="--p:{14 + i * 5}s">{tl}</g>'
+        s += tl
         if i < 3:
             my, mh = mists[i]
             tx, d = drift[i]
@@ -325,6 +370,10 @@ def header(p, fname):
             d, dd = rng.uniform(5, 9), rng.uniform(0, 5)
             s += (f'<circle class="mote" style="--p:{d:.1f}s;--dd:{dd:.1f}s" cx="{x:.1f}" cy="{y:.1f}" '
                   f'r="{rng.uniform(1.2, 2.0):.1f}" fill="#FFFFFF"/>')
+        s += ('<g><animateMotion dur="28s" repeatCount="indefinite" rotate="0" '
+              'path="M310,185 C430,120 560,215 480,150 C415,100 340,220 310,185 Z"/>'
+              '<g class="flut"><path d="M0,0 L-6.5,-4.5 L-5,2.2 Z" fill="#D08057"/>'
+              '<path d="M0,0 L6.5,-4.5 L5,2.2 Z" fill="#C06A44"/></g></g>')
 
     s += (
         f'<text x="56" y="118" font-size="13" fill="{p["prompt"]}">{PROMPT}'
@@ -364,81 +413,83 @@ def button(t, base, kind, label, grey=False, note=None):
     (OUT / f"{base}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
-def ann_sector(cx, cy, r0, r1, a0, a1):
-    """Annular sector path; angles in degrees, screen coords (y down)."""
-    a0r, a1r = math.radians(a0), math.radians(a1)
-
-    def p(r, a):
-        return (cx + r * math.cos(a), cy + r * math.sin(a))
-
-    x0, y0 = p(r1, a0r)
-    x1, y1 = p(r1, a1r)
-    x2, y2 = p(r0, a1r)
-    x3, y3 = p(r0, a0r)
-    large = 1 if (a1 - a0) % 360 > 180 else 0
-    if r0 <= 0.01:
-        return (f"M{cx:.1f},{cy:.1f} L{x0:.1f},{y0:.1f} "
-                f"A{r1:.1f},{r1:.1f} 0 {large} 1 {x1:.1f},{y1:.1f} Z")
-    return (f"M{x0:.1f},{y0:.1f} A{r1:.1f},{r1:.1f} 0 {large} 1 {x1:.1f},{y1:.1f} "
-            f"L{x2:.1f},{y2:.1f} A{r0:.1f},{r0:.1f} 0 {large} 0 {x3:.1f},{y3:.1f} Z")
+def _month_add(ym, k):
+    y, m = int(ym[:4]), int(ym[5:7])
+    m += k
+    y += (m - 1) // 12
+    m = (m - 1) % 12 + 1
+    return f"{y:04d}-{m:02d}"
 
 
-WHEEL_DARK = ["#1B4A33", "#153D29", "#1D523A", "#123524"]
-WHEEL_LIGHT = ["#C9DFCE", "#B9D3BF", "#D3E6D6", "#AFCBB7"]
+def _month_range(a, b):
+    out = []
+    while a <= b:
+        out.append(a)
+        a = _month_add(a, 1)
+    return out
 
 
-def wheel(t):
-    """The webfolio's radial menu, docked into the README: four quadrant SVGs
-    that assemble into a wheel in a 2x2 grid, each slice its own link.
-    GitHub can't hover, so the gold sub-ring breathes on its own instead."""
-    W, H = 440, 190
-    quads = [  # (wheel center, slice base angle, text side, text at top)
-        ((440, 190), 180, "left", True),
-        ((0, 190), 270, "right", True),
-        ((440, 0), 90, "left", False),
-        ((0, 0), 0, "right", False),
-    ]
-    edge = "#8FAE97" if t["light"] else "#2E5B41"
-    shadow = ('<filter id="f_ws" x="-20%" y="-20%" width="140%" height="140%">'
-              '<feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#10131A" '
-              f'flood-opacity="{".12" if t["light"] else ".3"}"/></filter>')
-    for i, ((name, desc, lang), ((cx, cy), a0, side, top)) in enumerate(zip(WAYPOINTS, quads)):
+def star_ridges(t):
+    """jdx's trending charts, restyled: each row is a repo's real cumulative
+    star history drawn as a mountain ridgeline with pines on it. The line
+    draws itself in, then a firefly wanders the ridge forever (SMIL
+    animateMotion along the same path). One SVG per row = one link per repo."""
+    W, H = 880, 92
+    hist = DATA.get("star_history", {})
+    end_m = DATA.get("fetched", "2026-10")[:7]
+    for i, (name, desc, _lang) in enumerate(WAYPOINTS):
         stars = DATA["stars"].get(name, 0)
-        fill = (WHEEL_LIGHT if t["light"] else WHEEL_DARK)[i]
-        s = svg_open(W, H, name, f"{name}: {desc} {stars} stars.")
-        s += shadow
-        s += '<g filter="url(#f_ws)">'
-        s += (f'<path d="{ann_sector(cx, cy, 44, 150, a0 + 7, a0 + 83)}" fill="{fill}" '
-              f'stroke="{edge}" stroke-width="1.5" stroke-linejoin="round"/>')
-        s += (f'<path d="{ann_sector(cx, cy, 0, 30, a0, a0 + 90)}" fill="{t["inset"]}" '
-              f'stroke="{t["iline"]}" stroke-width="1.25"/>')
-        s += "</g>"
-        s += (f'<g class="br" style="--p:{6 + i * 1.3:.1f}s;--dd:{i * 0.9:.1f}s">'
-              f'<path d="{ann_sector(cx, cy, 156, 166, a0 + 20, a0 + 60)}" fill="{t["gold"]}"/></g>')
-        mid = math.radians(a0 + 45)
-        ix, iy = cx + 96 * math.cos(mid), cy + 96 * math.sin(mid)
-        s += (f'<text x="{ix:.0f}" y="{iy + 3:.0f}" font-size="10" letter-spacing="1.5" '
-              f'text-anchor="middle" fill="{t["gold"]}">{lang}</text>')
-        tx = 26 if side == "left" else 414
-        anch = "" if side == "left" else ' text-anchor="end"'
-        ys = (54, 72, 98) if top else (128, 146, 172)
-        s += (f'<text x="{tx}" y="{ys[0]}" font-size="15" font-weight="700" fill="{t["ink"]}"{anch}>{name}</text>'
-              f'<text x="{tx}" y="{ys[1]}" font-size="11.5" fill="{t["dim"]}"{anch}>{desc}</text>')
-        if side == "left":
-            s += (f'<path transform="translate(32,{ys[2] - 5}) scale(.8)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
-                  f'<text x="44" y="{ys[2]}" font-size="12.5" fill="{t["ink"]}">{stars}</text>')
-        else:
-            cw = len(str(stars)) * 7.5
-            s += (f'<path transform="translate({414 - cw - 14:.0f},{ys[2] - 5}) scale(.8)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
-                  f'<text x="414" y="{ys[2]}" font-size="12.5" text-anchor="end" fill="{t["ink"]}">{stars}</text>')
-        if t["ff"]:
-            if top:
-                fx, fy = (300, 50) if side == "left" else (140, 50)
-            else:
-                fx, fy = (230, 40) if side == "left" else (210, 40)
-            s += (f'<circle class="ffp" style="--p:{4.5 + i:.1f}s;--dd:{i * 1.1:.1f}s" '
-                  f'cx="{fx}" cy="{fy}" r="1.6" fill="{FIREFLY}"/>')
-        (OUT / f"wheel-q{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
+        h = hist.get(name, {})
+        months = _month_range(h.get("created", end_m)[:7], end_m)
+        starred = h.get("starred", [])
+        vals = [sum(1 for s_ in starred if s_[:7] <= m) for m in months]
+        if len(months) > 36:
+            months, vals = months[-36:], vals[-36:]
+        while len(vals) < 6:
+            months.insert(0, _month_add(months[0], -1))
+            vals.insert(0, 0)
+        vmax = max(vals[-1], 1)
+
+        x0, x1, base, hmax = 350, 806, 72, 46
+        dx = (x1 - x0) / (len(vals) - 1)
+        pts = [(x0 + k * dx, base - (v / vmax) * hmax) for k, v in enumerate(vals)]
+        line_d = smooth_path(pts)
+        area_d = line_d + f" L{x1},{base} L{x0},{base} Z"
+        plen = sum(math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)) * 1.15
+
+        s = svg_open(W, H, name, f"{name}: {desc} Cumulative stars since "
+                                 f"{months[0]}, now {stars}.")
+        s += (f'<linearGradient id="g_a" x1="0" y1="0" x2="0" y2="1">'
+              f'<stop offset="0" stop-color="{t["icon"]}" stop-opacity=".28"/>'
+              f'<stop offset="1" stop-color="{t["icon"]}" stop-opacity="0"/></linearGradient>'
+              f'<radialGradient id="g_rg"><stop offset="0" stop-color="{FIREFLY}" stop-opacity=".8"/>'
+              f'<stop offset="1" stop-color="{FIREFLY}" stop-opacity="0"/></radialGradient>')
+        s += (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" '
+              f'fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>')
+        s += (f'<text x="34" y="38" font-size="15" font-weight="700" fill="{t["ink"]}">{name}</text>'
+              f'<text x="34" y="58" font-size="11.5" fill="{t["dim"]}">{desc}</text>')
+        s += f'<g class="fade" style="--dd:{1.1 + i * .25:.2f}s"><path d="{area_d}" fill="url(#g_a)"/></g>'
+        s += (f'<path id="rp" class="draw" style="--len:{plen:.0f};--dd:{.25 + i * .25:.2f}s;'
+              f'stroke-dasharray:{plen:.0f}" d="{line_d}" fill="none" '
+              f'stroke="{t["icon"]}" stroke-width="2" stroke-linecap="round"/>')
+        ridge_pines = ""
+        for k in range(2, len(pts) - 2, 3):
+            px, py = pts[k]
+            ridge_pines += "".join(
+                f'<polygon points="{q}"/>' for q in pine(px, py + 1, 5.5, 2.6, tiers=1))
+        s += (f'<g class="fade" style="--dd:{1.4 + i * .25:.2f}s" fill="{t["tree2"]}">'
+              f"{ridge_pines}</g>")
+        lx, ly = pts[-1]
+        s += (f'<circle cx="{lx:.1f}" cy="{ly:.1f}" r="7" fill="url(#g_rg)" class="ffp" '
+              f'style="--p:3.4s"/>'
+              f'<path transform="translate({lx:.1f},{ly - 1:.1f}) scale(.65)" d="{STAR_PATH}" '
+              f'fill="{t["gold"]}"/>')
+        tracer = FIREFLY if not t["light"] else t["gold"]
+        s += (f'<circle r="1.7" fill="{tracer}" opacity=".9">'
+              f'<animateMotion dur="{11 + i * 2.5:.0f}s" begin="{2.6 + i * .25:.2f}s" '
+              f'repeatCount="indefinite"><mpath href="#rp" xlink:href="#rp"/></animateMotion></circle>')
+        s += f'<text x="{lx + 13:.0f}" y="{ly + 4.5:.0f}" font-size="12.5" fill="{t["ink"]}">{stars}</text>'
+        (OUT / f"ridge-{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
 def contribution_forest(t):
@@ -475,6 +526,12 @@ def contribution_forest(t):
         tops.append((v, x, base_y - h))
     s += trees
     s += f'<rect x="30" y="{base_y}" width="820" height="2" rx="1" fill="{t["ground"]}"/>'
+    s += ('<filter id="f_fog" x="-10%" y="-200%" width="120%" height="500%">'
+          '<feGaussianBlur stdDeviation="6"/></filter>')
+    fog = "#B9D6C1" if not t["light"] else "#FFFFFF"
+    fog_op = ".05" if not t["light"] else ".3"
+    s += (f'<rect class="drift" style="--tx:24px;--d:46s" x="20" y="118" width="840" height="26" '
+          f'fill="{fog}" opacity="{fog_op}" filter="url(#f_fog)"/>')
     for v, x, ty in sorted(tops, reverse=True)[:4]:
         if t["ff"]:
             d = rng.uniform(3.5, 6)
@@ -500,7 +557,8 @@ def languages(t):
         color = LANG_COLORS.get(name, OTHER_COLOR)
         s += (f'<text x="40" y="{y}" font-size="11.5" fill="{t["ink"]}">{name}</text>'
               f'<rect x="150" y="{y - 7}" width="620" height="8" rx="2" fill="{t["ink"]}" opacity=".08"/>'
-              f'<rect x="150" y="{y - 7}" width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
+              f'<rect class="grow" style="--dd:{k * .12:.2f}s" x="150" y="{y - 7}" '
+              f'width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
               f'<text x="846" y="{y}" font-size="11" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
     (OUT / f"languages{t['sfx']}.svg").write_text(s + "</svg>")
 
@@ -530,6 +588,16 @@ def campfire(t):
         for sx, dd_, dl in ((323, 2.4, 0.3), (330, 3.1, 1.2), (337, 2.7, 0.7), (327, 3.5, 2.0)):
             s += (f'<circle class="spk" style="--d:{dd_}s;--dd:{dl}s" cx="{sx}" cy="62" r="1.2" '
                   f'fill="{FIREFLY}"/>')
+        for pr, pp, pdd in ((4, 5.2, 0), (5, 6.6, 1.8), (6, 8, 3.6)):
+            s += (f'<circle class="puff" style="--p:{pp}s;--dd:{pdd}s" cx="330" cy="52" r="{pr}" '
+                  f'fill="#9CB9A4"/>')
+        s += ('<g transform="translate(676,64)">'
+              '<path d="M-3.5,-4.5 L-2,-8 L-.5,-4.8 Z" fill="#1E4530"/>'
+              '<path d="M.5,-4.8 L2,-8 L3.5,-4.5 Z" fill="#1E4530"/>'
+              '<ellipse cx="0" cy="0" rx="4" ry="5.2" fill="#1E4530"/>'
+              '<g class="owl" style="--dd:2s">'
+              f'<circle cx="-1.5" cy="-1.5" r=".9" fill="{FIREFLY}"/>'
+              f'<circle cx="1.5" cy="-1.5" r=".9" fill="{FIREFLY}"/></g></g>')
     else:
         s += (f'<path class="smoke" d="M330,86 C322,70 340,58 332,42 C326,30 334,22 330,10" '
               f'fill="none" stroke="{t["dim"]}" stroke-width="2" stroke-linecap="round" opacity=".4"/>')
@@ -541,11 +609,13 @@ def campfire(t):
 
 
 # ---------------------------------------------------------------- data
-def gh_json(url, tok, payload=None):
+def gh_json(url, tok, payload=None, accept=None):
     import urllib.request
     req = urllib.request.Request(url, headers={"User-Agent": "forest-profile"})
     if tok:
         req.add_header("Authorization", f"Bearer {tok}")
+    if accept:
+        req.add_header("Accept", accept)
     if payload is not None:
         req.add_header("Content-Type", "application/json")
         req.data = json.dumps(payload).encode()
@@ -573,6 +643,22 @@ def fetch_live():
             data["langs"] = agg
     except Exception as e:
         print("languages fetch failed, keeping old:", e)
+    try:
+        hist = {}
+        for r in FEATURED:
+            created = gh_json(f"https://api.github.com/repos/{LOGIN}/{r}", tok)["created_at"][:10]
+            starred = []
+            for page in range(1, 5):
+                batch = gh_json(f"https://api.github.com/repos/{LOGIN}/{r}/stargazers"
+                                f"?per_page=100&page={page}", tok,
+                                accept="application/vnd.github.star+json")
+                starred += [x["starred_at"][:10] for x in batch]
+                if len(batch) < 100:
+                    break
+            hist[r] = {"created": created, "starred": sorted(starred)}
+        data["star_history"] = hist
+    except Exception as e:
+        print("star history fetch failed, keeping old:", e)
     if tok:
         try:
             q = ("query($login:String!){user(login:$login){contributionsCollection{"
@@ -606,7 +692,7 @@ if __name__ == "__main__":
         button(t, "link-youtube", "play", "YouTube")
         button(t, "link-sponsor", "heart", "Sponsor", grey=True, note="\u2192 MSF")
         button(t, "link-contact", "mail", "Contact")
-        wheel(t)
+        star_ridges(t)
         contribution_forest(t)
         languages(t)
         campfire(t)
