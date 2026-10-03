@@ -29,4 +29,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets data.json README.md
-          git diff --cached --quiet || { git commit -m "chore: the forest regrows [skip ci]"; git push; }
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: the forest regrows [skip ci]"
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          git push
