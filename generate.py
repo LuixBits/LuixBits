@@ -203,8 +203,8 @@ NIGHT = dict(
     orb="#E9F3E3", orb_glow="#CFE7D0", orb_glow_op=0.38, orb_r=24, glow_r=64,
     star="#DFF0E2",
     layers=[
-        (232, (20, 50), (8, 13), (11, 21), "#1E4430", 0.55, (44, 410, 0.45)),
-        (254, (32, 70), (10, 16), (14, 27), "#173627", 0.80, (44, 410, 0.45)),
+        (232, (20, 50), (8, 13), (11, 21), "#1E4430", 0.55, (44, 470, 0.45)),
+        (254, (32, 70), (10, 16), (14, 27), "#173627", 0.80, (44, 470, 0.45)),
         (282, (46, 93), (13, 19), (19, 35), "#102819", 1.00, (44, 470, 0.50)),
         (322, (67, 126), (16, 24), (29, 56), "#0A1A10", 1.00, (30, 500, 0.42)),
     ],
@@ -217,8 +217,8 @@ DAY = dict(
     orb="#F0D98F", orb_glow="#ECD27E", orb_glow_op=0.55, orb_r=30, glow_r=92,
     star=None,
     layers=[
-        (232, (20, 50), (8, 13), (11, 21), "#B7CFBA", 0.80, (44, 410, 0.45)),
-        (254, (32, 70), (10, 16), (14, 27), "#8FB597", 0.92, (44, 410, 0.45)),
+        (232, (20, 50), (8, 13), (11, 21), "#B7CFBA", 0.80, (44, 470, 0.45)),
+        (254, (32, 70), (10, 16), (14, 27), "#8FB597", 0.92, (44, 470, 0.45)),
         (282, (46, 93), (13, 19), (19, 35), "#567E63", 1.00, (44, 470, 0.50)),
         (322, (67, 126), (16, 24), (29, 56), HUB, 1.00, (30, 500, 0.42)),
     ],
@@ -263,11 +263,6 @@ def fmt_ym(ym):
 
 def fmt_date(day):
     return f"{int(day[8:10])} {MONTH_ABBR[int(day[5:7]) - 1]} {day[:4]}"
-
-
-def cutoff30():
-    f = datetime.date.fromisoformat(DATA.get("fetched", "2026-10-04"))
-    return (f - datetime.timedelta(days=30)).isoformat()
 
 
 def esc(x):
@@ -322,13 +317,13 @@ def season_particles(p, rng):
 
 
 NAME = "LuixBits"
-TAGLINE = "Software Engineer · UX Designer · NixOS"
+TAGLINE = "Software engineer and UX designer, building on NixOS"
 PROMPT = "luix@forest:~ $ whoami"
 
 WAYPOINTS = [
-    ("luix_nix_config", "NixOS as code — flakes, Home Manager.", "nix"),
+    ("luix_nix_config", "NixOS as code: flakes and Home Manager.", "nix"),
     ("luixbits-roomplanner.nvim", "Flat planning in Neovim, metric-exact.", "lua"),
-    ("TextSight", "Master thesis — AI-mapped connections.", "svelte"),
+    ("TextSight", "Master thesis: AI-mapped connections.", "svelte"),
     ("luixbits-noctalia-plugins", "Plugins for the Noctalia shell.", "luau"),
 ]
 MARKS = [(150, 110), (430, 202), (620, 294), (300, 386)]
@@ -340,7 +335,7 @@ STAR_PATH = ("M0,-6.2 L1.9,-1.9 L6.4,-1.5 L3.1,1.6 L4,6.2 L0,3.6 "
 def header(p, fname):
     rng = random.Random(42)
     W, H = 880, 320
-    s = svg_open(W, H, f"{NAME} — forest profile header", f"{NAME}. {TAGLINE}.")
+    s = svg_open(W, H, f"{NAME} forest profile header", f"{NAME}. {TAGLINE}.")
     stops = "".join(f'<stop offset="{o}" stop-color="{c}"/>' for o, c in p["sky"])
     s += (
         "<defs>"
@@ -486,9 +481,9 @@ def button(t, base, kind, label, grey=False, note=None):
     elif kind == "mail":
         s += (f'<rect x="20" y="21.5" width="18" height="12" rx="2" fill="none" stroke="{icon}" stroke-width="1.6"/>'
               f'<path d="M22,23.5 L29,29 L36,23.5" fill="none" stroke="{icon}" stroke-width="1.6" stroke-linejoin="round"/>')
-    s += f'<text x="50" y="33" font-size="13.5" fill="{ink}">{label}</text>'
+    s += f'<text x="50" y="33" font-size="13" fill="{ink}">{label}</text>'
     if note:
-        s += f'<text x="204" y="33" font-size="11" text-anchor="end" fill="{t["gsuf"]}">{note}</text>'
+        s += f'<text x="204" y="33" font-size="10" text-anchor="end" fill="{t["gsuf"]}">{note}</text>'
     (OUT / f"{base}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -569,13 +564,9 @@ def star_ridges(t):
         s += (f'<circle r="1.7" fill="{tracer}" opacity=".9">'
               f'<animateMotion dur="{11 + i * 2.5:.0f}s" begin="{2.6 + i * .25:.2f}s" '
               f'repeatCount="indefinite"><mpath href="#rp" xlink:href="#rp"/></animateMotion></circle>')
-        s += f'<text x="{lx + 13:.0f}" y="{ly + 4.5:.0f}" font-size="12.5" fill="{t["ink"]}">{stars}</text>'
-        n30 = sum(1 for s_ in h.get("starred", []) if s_ >= cutoff30())
-        if n30:
-            s += (f'<text x="846" y="{ly + 18:.0f}" font-size="9" text-anchor="end" '
-                  f'fill="{t["faint"]}">+{n30} in 30d</text>')
-        s += (f'<text x="{x0}" y="86" font-size="9" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
-              f'<text x="{x1}" y="86" font-size="9" text-anchor="end" '
+        s += f'<text x="{lx + 13:.0f}" y="{ly + 4.5:.0f}" font-size="13" fill="{t["ink"]}">{stars}</text>'
+        s += (f'<text x="{x0}" y="86" font-size="10" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
+              f'<text x="{x1}" y="86" font-size="10" text-anchor="end" '
               f'fill="{t["faint"]}">{fmt_ym(months[-1])}</text>')
         (OUT / f"ridge-{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
@@ -628,12 +619,8 @@ def star_range(t):
           f'<path transform="translate({lx:.1f},{ly - 1:.1f}) scale(.75)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
           f'<text x="{lx - 14:.0f}" y="{ly - 10:.0f}" font-size="13" text-anchor="end" '
           f'fill="{t["ink"]}">{total}</text>')
-    n30 = sum(1 for s_ in dates if s_ >= cutoff30())
-    if n30:
-        s += (f'<text x="{lx - 14:.0f}" y="{ly - 24:.0f}" font-size="9" text-anchor="end" '
-              f'fill="{t["faint"]}">+{n30} in 30d</text>')
-    s += (f'<text x="{x0}" y="142" font-size="9" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
-          f'<text x="{x1}" y="142" font-size="9" text-anchor="end" '
+    s += (f'<text x="{x0}" y="142" font-size="10" fill="{t["faint"]}">{fmt_ym(months[0])}</text>'
+          f'<text x="{x1}" y="142" font-size="10" text-anchor="end" '
           f'fill="{t["faint"]}">{fmt_ym(months[-1])}</text>')
     s += (f'<circle r="1.7" fill="{FIREFLY if not t["light"] else t["gold"]}" opacity=".9">'
           f'<animateMotion dur="16s" begin="2.8s" repeatCount="indefinite">'
@@ -672,7 +659,7 @@ def contribution_forest(t):
     end_ym = DATA.get("fetched", "2026-10")[:7]
     s += (f'<text x="34" y="162" font-size="10" fill="{t["faint"]}">{total:,} contributions</text>'
           f'<text x="846" y="162" font-size="10" text-anchor="end" fill="{t["faint"]}">'
-          f'{fmt_ym(_month_add(end_ym, -12))} → {fmt_ym(end_ym)}</text>')
+          f'{fmt_ym(_month_add(end_ym, -12))} to {fmt_ym(end_ym)}</text>')
     s += ('<filter id="f_fog" x="-10%" y="-200%" width="120%" height="500%">'
           '<feGaussianBlur stdDeviation="6"/></filter>')
     fog = "#B9D6C1" if not t["light"] else "#FFFFFF"
@@ -706,9 +693,9 @@ def languages(t):
               f'<rect x="150" y="{y - 7}" width="620" height="8" rx="2" fill="{t["ink"]}" opacity=".08"/>'
               f'<rect class="grow" style="--dd:{k * .12:.2f}s" x="150" y="{y - 7}" '
               f'width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
-              f'<text x="846" y="{y}" font-size="11" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
-    s += (f'<text x="846" y="166" font-size="9.5" text-anchor="end" fill="{t["faint"]}">'
-          f'{DATA.get("n_repos", 29)} public repos · {total / 1e6:.1f} MB of source</text>')
+              f'<text x="846" y="{y}" font-size="11.5" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
+    s += (f'<text x="846" y="166" font-size="10" text-anchor="end" fill="{t["faint"]}">'
+          f'{DATA.get("n_repos", 29)} public repos, {total / 1e6:.1f} MB of source</text>')
     if not t["light"]:
         for fx, fy, fp, fd in ((612, 164, 5.2, 1.1), (247, 168, 6.4, 3.0)):
             s += (f'<circle class="ffp" style="--p:{fp}s;--dd:{fd}s" cx="{fx}" cy="{fy}" '
@@ -804,10 +791,10 @@ def campfire(t):
               f'fill="{t["faint"]}" opacity=".45"/>'
               f'<ellipse transform="rotate(14 {fx + 5} {fy + 2.5:.0f})" cx="{fx + 5}" cy="{fy + 2.5:.0f}" '
               f'rx="2" ry="1.1" fill="{t["faint"]}" opacity=".45"/>')
-    s += (f'<text x="846" y="54" font-size="12.5" text-anchor="end" fill="{t["ink"]}">'
+    s += (f'<text x="846" y="54" font-size="13" text-anchor="end" fill="{t["ink"]}">'
           f'{visitors:,} visitors</text>'
-          f'<text x="846" y="72" font-size="9.5" text-anchor="end" fill="{t["faint"]}">'
-          f'regrown {fmt_date(DATA.get("fetched", "2026-10-04"))}</text>')
+          f'<text x="846" y="72" font-size="10" text-anchor="end" fill="{t["faint"]}">'
+          f'updated {fmt_date(DATA.get("fetched", "2026-10-04"))}</text>')
     (OUT / f"campfire{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -932,8 +919,8 @@ def build_readme():
            "     Architecture after jdx/jdx. The forest art is original. -->",
            '<p align="center">',
            '<picture><source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.svg">'
-           '<img src="assets/header-light.svg" width="100%" align="top" alt="LuixBits — Software Engineer '
-           '· UX Designer · NixOS. A forest under the real moon phase, with the season\'s weather."></picture>',
+           '<img src="assets/header-light.svg" width="100%" align="top" alt="LuixBits, '
+           'software engineer and UX designer building on NixOS. A forest under the real moon phase."></picture>',
            _pic("link-site", "luizperren.dev — coming soon", "25%")
            + '<a href="https://www.youtube.com/@LuixBits">' + _pic("link-youtube", "YouTube", "25%") + "</a>"
            + '<a href="https://www.doctorswithoutborders.org/">'
@@ -986,7 +973,7 @@ if __name__ == "__main__":
     for t in (T_DARK, T_LIGHT):
         button(t, "link-site", "pine", "luizperren.dev", grey=True, note="soon")
         button(t, "link-youtube", "play", "YouTube")
-        button(t, "link-sponsor", "heart", "Sponsor", grey=True, note="\u2192 MSF")
+        button(t, "link-sponsor", "heart", "Sponsor", grey=True, note="to MSF")
         button(t, "link-contact", "mail", "Contact")
         star_ridges(t)
         star_range(t)
