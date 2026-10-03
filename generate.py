@@ -77,6 +77,7 @@ COMMON_CSS = (
     "animation:flm var(--fd,1s) ease-in-out infinite alternate}"
     ".spk{animation:spk var(--d,2.6s) linear var(--dd,0s) infinite}"
     ".smoke{animation:smk 5s ease-in-out infinite alternate}"
+    ".br{animation:br var(--p,7s) ease-in-out var(--dd,0s) infinite alternate}"
     "@keyframes tw{from{opacity:.12}to{opacity:.75}}"
     "@keyframes dr{to{transform:translateX(var(--tx,20px))}}"
     "@keyframes ffd{to{transform:translate(var(--tx,10px),var(--ty,-8px))}}"
@@ -86,6 +87,7 @@ COMMON_CSS = (
     "@keyframes flm{from{transform:scaleY(.93)}to{transform:scaleY(1.07)}}"
     "@keyframes spk{0%{transform:translateY(0);opacity:.85}100%{transform:translateY(-30px);opacity:0}}"
     "@keyframes smk{from{opacity:.22}to{opacity:.55}}"
+    "@keyframes br{from{opacity:.45}to{opacity:1}}"
     "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
 )
 
@@ -334,7 +336,7 @@ def header(p, fname):
     (OUT / fname).write_text(s + "</svg>")
 
 
-def button(t, base, kind, label, grey=False):
+def button(t, base, kind, label, grey=False, note=None):
     W, H = 214, 56
     s = svg_open(W, H, label, f"{label} link button.")
     if grey:
@@ -357,113 +359,91 @@ def button(t, base, kind, label, grey=False):
         s += (f'<rect x="20" y="21.5" width="18" height="12" rx="2" fill="none" stroke="{icon}" stroke-width="1.6"/>'
               f'<path d="M22,23.5 L29,29 L36,23.5" fill="none" stroke="{icon}" stroke-width="1.6" stroke-linejoin="round"/>')
     s += f'<text x="50" y="33" font-size="13.5" fill="{ink}">{label}</text>'
-    if grey:
-        s += f'<text x="198" y="33" font-size="11" text-anchor="end" fill="{t["gsuf"]}">→ MSF</text>'
+    if note:
+        s += f'<text x="198" y="33" font-size="11" text-anchor="end" fill="{t["gsuf"]}">{note}</text>'
     (OUT / f"{base}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
-def trail_scene(t):
-    rng = random.Random(7)
-    s = f'<rect x="1" y="1" width="878" height="478" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
-    for y0 in (70, 140, 210, 290, 360, 430):
-        pts = [(16 + k * (848 / 6), y0 + rng.uniform(-16, 16)) for k in range(7)]
-        s += (f'<path d="{smooth_path(pts)}" fill="none" stroke="{t["ink"]}" '
-              f'stroke-width="1" opacity="{t["contour_op"]}"/>')
-    creek = [(742, 4), (694, 92), (726, 180), (628, 266), (520, 332), (414, 398), (236, 442), (80, 474)]
-    cd = smooth_path(creek)
-    s += f'<path d="{cd}" fill="none" stroke="{t["creek"]}" stroke-width="7" opacity="{t["creek_op"] * 0.25:.2f}"/>'
-    s += f'<path d="{cd}" fill="none" stroke="{t["creek"]}" stroke-width="2.5" opacity="{t["creek_op"]}"/>'
-    tr = [(90, 466), (210, 424), MARKS[3], (470, 336), MARKS[2], (545, 244), MARKS[1],
-          (268, 152), MARKS[0], (242, 62), (470, 34), (690, 26)]
-    s += (f'<path d="{smooth_path(tr)}" fill="none" stroke="{t["trail"]}" stroke-width="2.5" '
-          f'stroke-dasharray="1 8" stroke-linecap="round" opacity=".85"/>')
+def ann_sector(cx, cy, r0, r1, a0, a1):
+    """Annular sector path; angles in degrees, screen coords (y down)."""
+    a0r, a1r = math.radians(a0), math.radians(a1)
 
-    zones = [(10, 6, 860, 56), (756, 2, 120, 62), (6, 434, 868, 44), (788, 70, 86, 356)]
-    for i, (mx, my) in enumerate(MARKS):
-        zones.append((mx - 18, my - 18, 36, 36))
-        if i == 2:
-            zones.append((mx - 374, my - 28, 352, 58))
-        else:
-            zones.append((mx + 20, my - 28, 392, 58))
-    placed, attempts = 0, 0
-    while placed < 30 and attempts < 500:
-        attempts += 1
-        x, y = rng.uniform(26, 854), rng.uniform(66, 426)
-        if any(zx <= x <= zx + zw and zy <= y <= zy + zh for zx, zy, zw, zh in zones):
-            continue
-        h = rng.uniform(9, 22)
-        col = t["tree1"] if rng.random() < 0.6 else t["tree2"]
-        s += pines_g(x, y, h, h * 0.42, col, tiers=2)
-        placed += 1
+    def p(r, a):
+        return (cx + r * math.cos(a), cy + r * math.sin(a))
 
-    if t["ff"]:
-        n = 0
-        while n < 5:
-            x, y = rng.uniform(40, 840), rng.uniform(70, 420)
-            if any(zx <= x <= zx + zw and zy <= y <= zy + zh for zx, zy, zw, zh in zones):
-                continue
-            d, dd = rng.uniform(3.5, 6.5), rng.uniform(0, 4)
-            s += (f'<circle class="ffp" style="--p:{d:.1f}s;--dd:{dd:.1f}s" cx="{x:.1f}" cy="{y:.1f}" '
-                  f'r="1.6" fill="{FIREFLY}"/>')
-            n += 1
-    else:
-        for bx, by, sc in ((548, 84, 0.9), (596, 70, 0.7)):
-            s += (f'<path d="M{bx},{by} q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0 '
-                  f'q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0" stroke="{STEM}" '
-                  f'stroke-width="{1.4 * sc:.1f}" fill="none" stroke-linecap="round" opacity=".6"/>')
+    x0, y0 = p(r1, a0r)
+    x1, y1 = p(r1, a1r)
+    x2, y2 = p(r0, a1r)
+    x3, y3 = p(r0, a0r)
+    large = 1 if (a1 - a0) % 360 > 180 else 0
+    if r0 <= 0.01:
+        return (f"M{cx:.1f},{cy:.1f} L{x0:.1f},{y0:.1f} "
+                f"A{r1:.1f},{r1:.1f} 0 {large} 1 {x1:.1f},{y1:.1f} Z")
+    return (f"M{x0:.1f},{y0:.1f} A{r1:.1f},{r1:.1f} 0 {large} 1 {x1:.1f},{y1:.1f} "
+            f"L{x2:.1f},{y2:.1f} A{r0:.1f},{r0:.1f} 0 {large} 0 {x3:.1f},{y3:.1f} Z")
 
-    for i, ((name, desc, lang), (mx, my)) in enumerate(zip(WAYPOINTS, MARKS)):
+
+WHEEL_DARK = ["#1B4A33", "#153D29", "#1D523A", "#123524"]
+WHEEL_LIGHT = ["#C9DFCE", "#B9D3BF", "#D3E6D6", "#AFCBB7"]
+
+
+def wheel(t):
+    """The webfolio's radial menu, docked into the README: four quadrant SVGs
+    that assemble into a wheel in a 2x2 grid, each slice its own link.
+    GitHub can't hover, so the gold sub-ring breathes on its own instead."""
+    W, H = 440, 190
+    quads = [  # (wheel center, slice base angle, text side, text at top)
+        ((440, 190), 180, "left", True),
+        ((0, 190), 270, "right", True),
+        ((440, 0), 90, "left", False),
+        ((0, 0), 0, "right", False),
+    ]
+    edge = "#8FAE97" if t["light"] else "#2E5B41"
+    shadow = ('<filter id="f_ws" x="-20%" y="-20%" width="140%" height="140%">'
+              '<feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#10131A" '
+              f'flood-opacity="{".12" if t["light"] else ".3"}"/></filter>')
+    for i, ((name, desc, lang), ((cx, cy), a0, side, top)) in enumerate(zip(WAYPOINTS, quads)):
         stars = DATA["stars"].get(name, 0)
-        s += (f'<circle cx="{mx}" cy="{my}" r="11" fill="{t["panel"]}" stroke="{t["gold"]}" stroke-width="1.5"/>'
-              + pines_g(mx, my + 6.5, 11, 4, t["icon"], tiers=2))
-        if i == 2:
-            tx, anch = mx - 26, ' text-anchor="end"'
+        fill = (WHEEL_LIGHT if t["light"] else WHEEL_DARK)[i]
+        s = svg_open(W, H, name, f"{name}: {desc} {stars} stars.")
+        s += shadow
+        s += '<g filter="url(#f_ws)">'
+        s += (f'<path d="{ann_sector(cx, cy, 44, 150, a0 + 7, a0 + 83)}" fill="{fill}" '
+              f'stroke="{edge}" stroke-width="1.5" stroke-linejoin="round"/>')
+        s += (f'<path d="{ann_sector(cx, cy, 0, 30, a0, a0 + 90)}" fill="{t["inset"]}" '
+              f'stroke="{t["iline"]}" stroke-width="1.25"/>')
+        s += "</g>"
+        s += (f'<g class="br" style="--p:{6 + i * 1.3:.1f}s;--dd:{i * 0.9:.1f}s">'
+              f'<path d="{ann_sector(cx, cy, 156, 166, a0 + 20, a0 + 60)}" fill="{t["gold"]}"/></g>')
+        mid = math.radians(a0 + 45)
+        ix, iy = cx + 96 * math.cos(mid), cy + 96 * math.sin(mid)
+        s += (f'<text x="{ix:.0f}" y="{iy + 3:.0f}" font-size="10" letter-spacing="1.5" '
+              f'text-anchor="middle" fill="{t["gold"]}">{lang}</text>')
+        tx = 26 if side == "left" else 414
+        anch = "" if side == "left" else ' text-anchor="end"'
+        ys = (54, 72, 98) if top else (128, 146, 172)
+        s += (f'<text x="{tx}" y="{ys[0]}" font-size="15" font-weight="700" fill="{t["ink"]}"{anch}>{name}</text>'
+              f'<text x="{tx}" y="{ys[1]}" font-size="11.5" fill="{t["dim"]}"{anch}>{desc}</text>')
+        if side == "left":
+            s += (f'<path transform="translate(32,{ys[2] - 5}) scale(.8)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
+                  f'<text x="44" y="{ys[2]}" font-size="12.5" fill="{t["ink"]}">{stars}</text>')
         else:
-            tx, anch = mx + 26, ""
-        s += (f'<text x="{tx}" y="{my - 15}" font-size="9" letter-spacing="1.5" fill="{t["faint"]}"{anch}>'
-              f"WP 0{i + 1} · {lang.upper()}</text>"
-              f'<text x="{tx}" y="{my + 2}" font-size="15" font-weight="700" fill="{t["ink"]}"{anch}>{name}</text>'
-              f'<text x="{tx}" y="{my + 19}" font-size="11.5" fill="{t["dim"]}"{anch}>{desc}</text>')
-        s += (f'<path transform="translate(812,{my - 4}) scale(.8)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
-              f'<text x="826" y="{my + 1}" font-size="12.5" fill="{t["ink"]}">{stars}</text>')
-
-    s += (f'<text x="30" y="40" font-size="12" letter-spacing="2.5" fill="{t["ink"]}">'
-          "TRAIL MAP · FEATURED PROJECTS</text>")
-    s += (f'<circle cx="820" cy="33" r="16" fill="none" stroke="{t["dim"]}" stroke-width="1.2"/>'
-          f'<polygon points="816,33 820,21 824,33" fill="{t["gold"]}"/>'
-          f'<polygon points="816,33 820,45 824,33" fill="{t["dim"]}" opacity=".6"/>'
-          f'<text x="820" y="15" font-size="8" text-anchor="middle" fill="{t["faint"]}">N</text>')
-    ly = 461
-    s += (f'<line x1="30" y1="{ly - 4}" x2="66" y2="{ly - 4}" stroke="{t["trail"]}" stroke-width="2.5" '
-          'stroke-dasharray="1 7" stroke-linecap="round"/>'
-          f'<text x="74" y="{ly}" font-size="10" fill="{t["faint"]}">trail</text>'
-          f'<path transform="translate(130,{ly - 8}) scale(.6)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
-          f'<text x="141" y="{ly}" font-size="10" fill="{t["faint"]}">stars</text>'
-          + pines_g(200, ly + 2, 10, 4, t["tree2"], tiers=2)
-          + f'<text x="210" y="{ly}" font-size="10" fill="{t["faint"]}">forest</text>'
-          f'<text x="848" y="{ly}" font-size="10" text-anchor="end" fill="{t["faint"]}">'
-          "4 marked routes · updated nightly</text>")
-    return s
-
-
-def trail_slices(t):
-    scene = trail_scene(t)
-    parts = [("head", 0, 64, "Trail map", "Featured projects as waypoints on a forest trail map."),
-             ("legend", 432, 48, "Trail map legend", "Dashed line: trail. Star: stars. Pines: forest.")]
-    for i, (name, desc, _lang) in enumerate(WAYPOINTS):
-        parts.insert(1 + i, (f"wp{i + 1}", 64 + 92 * i, 92, name,
-                             f"{name}: {desc} {DATA['stars'].get(name, 0)} stars."))
-    for part, y0, h, ti, de in parts:
-        body = (f'<svg xmlns="http://www.w3.org/2000/svg" width="880" height="{h}" '
-                f'viewBox="0 {y0} 880 {h}" role="img" aria-labelledby="t d">'
-                f"<title id=\"t\">{ti}</title><desc id=\"d\">{de}</desc>"
-                f"<style>{COMMON_CSS}</style>{scene}</svg>")
-        (OUT / f"trail-{part}{t['sfx']}.svg").write_text(body)
+            cw = len(str(stars)) * 7.5
+            s += (f'<path transform="translate({414 - cw - 14:.0f},{ys[2] - 5}) scale(.8)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
+                  f'<text x="414" y="{ys[2]}" font-size="12.5" text-anchor="end" fill="{t["ink"]}">{stars}</text>')
+        if t["ff"]:
+            if top:
+                fx, fy = (300, 50) if side == "left" else (140, 50)
+            else:
+                fx, fy = (230, 40) if side == "left" else (210, 40)
+            s += (f'<circle class="ffp" style="--p:{4.5 + i:.1f}s;--dd:{i * 1.1:.1f}s" '
+                  f'cx="{fx}" cy="{fy}" r="1.6" fill="{FIREFLY}"/>')
+        (OUT / f"wheel-q{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
 def contribution_forest(t):
     rng = random.Random(11)
-    W, H = 880, 196
+    W, H = 880, 168
     base_y = 150
     vals = DATA["calendar"]
     maxv, total = max(vals), DATA["cal_total"]
@@ -471,8 +451,6 @@ def contribution_forest(t):
     s = svg_open(W, H, "Contribution forest",
                  f"One pine per day over the last year; {total} contributions.")
     s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
-    s += (f'<text x="34" y="27" font-size="10" letter-spacing="2" fill="{t["faint"]}">'
-          "CONTRIBUTION FOREST · LAST 12 MONTHS</text>")
     s += (f'<radialGradient id="g_m"><stop offset="0" stop-color="{t["gold"] if t["light"] else "#CFE7D0"}" stop-opacity=".7"/>'
           f'<stop offset="1" stop-color="{t["gold"] if t["light"] else "#CFE7D0"}" stop-opacity="0"/></radialGradient>'
           f'<circle cx="822" cy="30" r="24" fill="url(#g_m)" opacity=".35"/>'
@@ -505,86 +483,60 @@ def contribution_forest(t):
         else:
             s += f'<circle cx="{x:.1f}" cy="{ty - 6:.1f}" r="1.5" fill="{t["gold"]}" opacity=".7"/>'
 
-    s += (f'<text x="34" y="178" font-size="10.5" fill="{t["faint"]}">$ git log --since=&quot;1 year ago&quot; '
-          f'--oneline | wc -l&#160;&#160;→&#160;&#160;{total:,} contributions</text>')
-    s += f'<text x="742" y="178" font-size="10" text-anchor="end" fill="{t["faint"]}">less</text>'
-    for k, lx in enumerate((752, 764, 776, 788)):
-        tt = (0.12, 0.4, 0.7, 1.0)[k]
-        s += pines_g(lx, 181, 5 + k * 3.2, 4 + k * 0.8, lerp_hex(t["lerp0"], t["lerp1"], tt), tiers=2)
-    s += f'<text x="798" y="178" font-size="10" fill="{t["faint"]}">more</text>'
     (OUT / f"contribution-forest{t['sfx']}.svg").write_text(s + "</svg>")
 
 
-def lang_rings(t):
-    W, H = 880, 200
+def languages(t):
+    W, H = 880, 176
     langs = DATA["langs"]
     total = sum(langs.values())
     top = sorted(langs.items(), key=lambda kv: -kv[1])[:5]
     rows = [(k, v / total) for k, v in top]
     rows.append(("other", (total - sum(v for _, v in top)) / total))
-
-    s = svg_open(W, H, "Language rings",
-                 "Language share across all public repos, by bytes of source.")
+    s = svg_open(W, H, "Languages", "Language share across all public repos, by bytes of source.")
     s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
-    s += (f'<text x="34" y="27" font-size="10" letter-spacing="2" fill="{t["faint"]}">'
-          "LANGUAGE RINGS · ALL PUBLIC REPOS</text>")
-    cx, cy = 150, 116
-    s += f'<circle cx="{cx}" cy="{cy}" r="62" fill="{WOOD}"/>'
-    for k, r in enumerate(range(54, 10, -7)):
-        s += (f'<ellipse cx="{cx}" cy="{cy}" rx="{r}" ry="{r * 0.96:.1f}" fill="none" '
-              f'stroke="{RING}" stroke-width="1.2" opacity=".55" '
-              f'transform="rotate({k * 9} {cx} {cy})"/>')
-    s += (f'<circle cx="{cx}" cy="{cy}" r="62" fill="none" stroke="{BARK}" stroke-width="5"/>'
-          f'<path d="M{cx},{cy} L{cx + 40},{cy - 26}" stroke="{CRACK}" stroke-width="1.5" opacity=".7"/>'
-          f'<path d="M{cx},{cy} L{cx - 16},{cy + 44}" stroke="{CRACK}" stroke-width="1.5" opacity=".7"/>'
-          f'<text x="{cx}" y="196" font-size="9.5" text-anchor="middle" fill="{t["faint"]}">'
-          f"{total / 1e6:.1f} MB of source</text>")
     for k, (name, share) in enumerate(rows):
-        y = 62 + k * 22
+        y = 42 + k * 22
         color = LANG_COLORS.get(name, OTHER_COLOR)
-        s += (f'<text x="300" y="{y}" font-size="11.5" fill="{t["ink"]}">{name}</text>'
-              f'<rect x="398" y="{y - 7}" width="370" height="8" rx="2" fill="{t["ink"]}" opacity=".08"/>'
-              f'<rect x="398" y="{y - 7}" width="{max(3, 370 * share):.1f}" height="8" rx="2" fill="{color}"/>'
+        s += (f'<text x="40" y="{y}" font-size="11.5" fill="{t["ink"]}">{name}</text>'
+              f'<rect x="150" y="{y - 7}" width="620" height="8" rx="2" fill="{t["ink"]}" opacity=".08"/>'
+              f'<rect x="150" y="{y - 7}" width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
               f'<text x="846" y="{y}" font-size="11" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
-    (OUT / f"lang-rings{t['sfx']}.svg").write_text(s + "</svg>")
+    (OUT / f"languages{t['sfx']}.svg").write_text(s + "</svg>")
 
 
 def campfire(t):
     W, H = 880, 120
-    s = svg_open(W, H, "Campfire",
-                 "A campsite footer. At night the fire burns; by day, smoke and birds.")
+    s = svg_open(W, H, "Campfire", "A campsite. At night the fire burns; by day, smoke and birds.")
     s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
     s += f'<rect x="24" y="94" width="832" height="1.5" fill="{t["ground"]}"/>'
-    s += (f'<polygon points="112,94 150,48 188,94" fill="{t["inset"]}" stroke="{t["iline"]}" stroke-width="1.5"/>'
-          f'<line x1="150" y1="48" x2="150" y2="94" stroke="{t["iline"]}" stroke-width="1.2"/>'
-          f'<polyline points="140,94 150,72 160,94" fill="none" stroke="{t["iline"]}" stroke-width="1.2"/>')
-    s += (pines_g(468, 94, 24, 8.5, t["tree1"]) + pines_g(498, 94, 16, 6, t["tree2"], tiers=2)
-          + pines_g(640, 94, 20, 7, t["tree1"], tiers=2))
-    s += (f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(250,92) rotate(18)" fill="{CRACK}"/>'
-          f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(250,92) rotate(-18)" fill="{CRACK}"/>')
+    s += (f'<polygon points="192,94 230,48 268,94" fill="{t["inset"]}" stroke="{t["iline"]}" stroke-width="1.5"/>'
+          f'<line x1="230" y1="48" x2="230" y2="94" stroke="{t["iline"]}" stroke-width="1.2"/>'
+          f'<polyline points="220,94 230,72 240,94" fill="none" stroke="{t["iline"]}" stroke-width="1.2"/>')
+    s += (pines_g(560, 94, 26, 9, t["tree1"]) + pines_g(592, 94, 17, 6.5, t["tree2"], tiers=2)
+          + pines_g(676, 94, 22, 7.5, t["tree1"]) + pines_g(706, 94, 14, 5.5, t["tree2"], tiers=2)
+          + pines_g(744, 94, 19, 7, t["tree1"], tiers=2))
+    s += (f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(330,92) rotate(18)" fill="{CRACK}"/>'
+          f'<rect x="-14" y="-2.5" width="28" height="5" rx="2" transform="translate(330,92) rotate(-18)" fill="{CRACK}"/>')
     if t["ff"]:
         s += ('<radialGradient id="g_fire"><stop offset="0" stop-color="#FFD36E" stop-opacity=".55"/>'
               '<stop offset="1" stop-color="#FFD36E" stop-opacity="0"/></radialGradient>'
-              '<circle cx="250" cy="76" r="36" fill="url(#g_fire)"/>')
-        s += ('<g transform="translate(250,89)">'
+              '<circle cx="330" cy="76" r="36" fill="url(#g_fire)"/>')
+        s += ('<g transform="translate(330,89)">'
               '<path class="fl" style="--fd:.95s" d="M0,0 C-9,-9 -7,-21 0,-30 C7,-21 9,-9 0,0" fill="#D9A441"/>'
               '<path class="fl" style="--fd:1.25s" d="M0,0 C-6,-6 -4.8,-14 0,-20 C4.8,-14 6,-6 0,0" fill="#FFD36E"/>'
               '<path class="fl" style="--fd:.8s" d="M0,0 C-3.5,-4 -2.8,-8.5 0,-12 C2.8,-8.5 3.5,-4 0,0" fill="#FFF2C9"/>'
               "</g>")
-        for sx, d, dd in ((243, 2.4, 0.3), (250, 3.1, 1.2), (257, 2.7, 0.7), (247, 3.5, 2.0)):
-            s += (f'<circle class="spk" style="--d:{d}s;--dd:{dd}s" cx="{sx}" cy="62" r="1.2" '
+        for sx, dd_, dl in ((323, 2.4, 0.3), (330, 3.1, 1.2), (337, 2.7, 0.7), (327, 3.5, 2.0)):
+            s += (f'<circle class="spk" style="--d:{dd_}s;--dd:{dl}s" cx="{sx}" cy="62" r="1.2" '
                   f'fill="{FIREFLY}"/>')
-        line1, line2 = "connection closed", "the forest sleeps · regenerated nightly by forest.yml"
     else:
-        s += (f'<path class="smoke" d="M250,86 C242,70 260,58 252,42 C246,30 254,22 250,10" '
+        s += (f'<path class="smoke" d="M330,86 C322,70 340,58 332,42 C326,30 334,22 330,10" '
               f'fill="none" stroke="{t["dim"]}" stroke-width="2" stroke-linecap="round" opacity=".4"/>')
         for bx, by, sc in ((560, 40, 0.9), (604, 28, 0.7)):
             s += (f'<path d="M{bx},{by} q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0 '
                   f'q{5.6 * sc:.1f},{-4.8 * sc:.1f} {11.2 * sc:.1f},0" stroke="{STEM}" '
                   f'stroke-width="{1.4 * sc:.1f}" fill="none" stroke-linecap="round" opacity=".6"/>')
-        line1, line2 = "gone hiking — back at dusk", "regenerated nightly by forest.yml"
-    s += (f'<text x="846" y="54" font-size="13.5" text-anchor="end" fill="{t["ink"]}">{line1}</text>'
-          f'<text x="846" y="76" font-size="10.5" text-anchor="end" fill="{t["faint"]}">{line2}</text>')
     (OUT / f"campfire{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -650,12 +602,12 @@ if __name__ == "__main__":
     header(NIGHT, "header-dark.svg")
     header(DAY, "header-light.svg")
     for t in (T_DARK, T_LIGHT):
-        button(t, "link-site", "pine", "luizperren.dev")
+        button(t, "link-site", "pine", "luizperren.dev", grey=True, note="soon")
         button(t, "link-youtube", "play", "YouTube")
-        button(t, "link-sponsor", "heart", "Sponsor", grey=True)
+        button(t, "link-sponsor", "heart", "Sponsor", grey=True, note="\u2192 MSF")
         button(t, "link-contact", "mail", "Contact")
-        trail_slices(t)
+        wheel(t)
         contribution_forest(t)
-        lang_rings(t)
+        languages(t)
         campfire(t)
     print("rendered:", len(list(OUT.glob("*.svg"))), "SVGs in", OUT)
