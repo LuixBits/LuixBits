@@ -98,6 +98,7 @@ COMMON_CSS = (
     ".puff{animation:puff var(--p,6s) ease-out var(--dd,0s) infinite;opacity:0}"
     ".owl{animation:owl 7s linear var(--dd,0s) infinite}"
     ".draw{animation:draw 2.2s ease-out var(--dd,.2s) both}"
+    ".fall{animation:fall var(--d,12s) linear var(--dd,0s) infinite}"
     ".fade{animation:fade 1.2s ease-out var(--dd,1s) both;opacity:0}"
     "@keyframes sway{from{transform:skewX(.5deg)}to{transform:skewX(-.5deg)}}"
     "@keyframes hike{from{transform:translate(930px,281px)}to{transform:translate(-70px,281px)}}"
@@ -111,6 +112,8 @@ COMMON_CSS = (
     "100%{transform:translateY(-34px) scale(1.4);opacity:0}}"
     "@keyframes owl{0%,91%,96%,100%{opacity:1}93%,94.5%{opacity:0}}"
     "@keyframes draw{from{stroke-dashoffset:var(--len,1000)}to{stroke-dashoffset:0}}"
+    "@keyframes fall{from{transform:translate(0,-16px) rotate(0)}"
+    "to{transform:translate(var(--fx,40px),352px) rotate(280deg)}}"
     "@keyframes fade{from{opacity:0}to{opacity:1}}"
     "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
 )
@@ -206,7 +209,7 @@ NIGHT = dict(
         (322, (67, 126), (16, 24), (29, 56), "#0A1A10", 1.00, (30, 500, 0.42)),
     ],
     mist="#B9D6C1", mist_ops=(0.06, 0.09, 0.12),
-    prompt="#7FA98C", name="#EDF6ED", name_glow="#7FD6A0", glow_op=0.35, tagline="#A9C4B1",
+    prompt="#7FA98C", name="#EDF6ED", name_glow="#7FD6A0", glow_op=0.18, tagline="#A9C4B1",
 )
 DAY = dict(
     sky=[(0, "#F5FAF5"), (0.58, "#E9F2E8"), (1, "#D9E7D4")],
@@ -220,7 +223,7 @@ DAY = dict(
         (322, (67, 126), (16, 24), (29, 56), HUB, 1.00, (30, 500, 0.42)),
     ],
     mist="#FFFFFF", mist_ops=(0.24, 0.30, 0.34),
-    prompt="#4F8A63", name="#12251A", name_glow="#86B894", glow_op=0.25, tagline="#3C5346",
+    prompt="#4F8A63", name="#12251A", name_glow="#86B894", glow_op=0.12, tagline="#3C5346",
 )
 
 T_DARK = dict(
@@ -245,6 +248,58 @@ T_LIGHT = dict(
     ground="#C9DACB", lerp0="#C4D8C4", lerp1="#3F6D4E",
     star=None, ff=False,
 )
+
+# One continuous poster: every section paints its slice of this master ramp,
+# so the README reads as a single scene with no GitHub background in between.
+SEC_BTN, SEC_RIDGE, SEC_RANGE, SEC_CONTRIB, SEC_LANG, SEC_FIRE = 320, 376, 744, 894, 1062, 1238
+RAMP_DARK = [(320, "#0A1A10"), (744, "#08160D"), (1238, "#05110A"), (1360, "#040E09")]
+RAMP_LIGHT = [(320, "#EFF5EC"), (744, "#E9F1E5"), (1238, "#DFE9DA"), (1360, "#DCE6D7")]
+
+
+def bgcol(t, y):
+    ramp = RAMP_LIGHT if t["light"] else RAMP_DARK
+    if y <= ramp[0][0]:
+        return ramp[0][1]
+    for (y0, c0), (y1, c1) in zip(ramp, ramp[1:]):
+        if y <= y1:
+            return lerp_hex(c0, c1, (y - y0) / (y1 - y0))
+    return ramp[-1][1]
+
+
+def section_bg(t, y0, h, w=880):
+    c0, c1 = bgcol(t, y0), bgcol(t, y0 + h)
+    return (f'<linearGradient id="g_bg" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{c0}"/><stop offset="1" stop-color="{c1}"/></linearGradient>'
+            f'<rect width="{w}" height="{h}" fill="url(#g_bg)"/>')
+
+
+def season_particles(p, rng):
+    """The sky knows the date: leaves in autumn, snow in winter, petals in
+    spring; summer belongs to the fireflies alone."""
+    kind = {12: "snow", 1: "snow", 2: "snow", 3: "petal", 4: "petal", 5: "petal",
+            6: "ff", 7: "ff", 8: "ff", 9: "leaf", 10: "leaf", 11: "leaf"}[datetime.date.today().month]
+    s = ""
+    if kind == "leaf":
+        col, op = ("#8A5A2B", ".55") if p["star"] else ("#C9823E", ".75")
+        for _ in range(7):
+            x, dur, dd, fx = rng.uniform(50, 840), rng.uniform(9, 16), rng.uniform(0, 12), rng.uniform(-60, 80)
+            s += (f'<g transform="translate({x:.0f},-6)"><g class="fall" '
+                  f'style="--d:{dur:.1f}s;--dd:{dd:.1f}s;--fx:{fx:.0f}px">'
+                  f'<path d="M0,0 Q3,-3 6,0 Q3,3 0,0 Z" fill="{col}" opacity="{op}"/></g></g>')
+    elif kind == "snow":
+        for _ in range(12):
+            x, dur, dd, fx = rng.uniform(20, 860), rng.uniform(13, 22), rng.uniform(0, 16), rng.uniform(-40, 40)
+            s += (f'<g transform="translate({x:.0f},-6)"><g class="fall" '
+                  f'style="--d:{dur:.1f}s;--dd:{dd:.1f}s;--fx:{fx:.0f}px">'
+                  f'<circle r="{rng.uniform(1.3, 2.4):.1f}" fill="#FFFFFF" opacity=".8"/></g></g>')
+    elif kind == "petal":
+        for _ in range(9):
+            x, dur, dd, fx = rng.uniform(40, 840), rng.uniform(10, 17), rng.uniform(0, 12), rng.uniform(-70, 70)
+            s += (f'<g transform="translate({x:.0f},-6)"><g class="fall" '
+                  f'style="--d:{dur:.1f}s;--dd:{dd:.1f}s;--fx:{fx:.0f}px">'
+                  f'<ellipse rx="2.8" ry="1.7" fill="#EBD8DF" opacity=".8"/></g></g>')
+    return s
+
 
 NAME = "LuixBits"
 TAGLINE = "Software Engineer · UX Designer · NixOS"
@@ -375,24 +430,28 @@ def header(p, fname):
               '<g class="flut"><path d="M0,0 L-6.5,-4.5 L-5,2.2 Z" fill="#D08057"/>'
               '<path d="M0,0 L6.5,-4.5 L5,2.2 Z" fill="#C06A44"/></g></g>')
 
+    if not p["star"]:  # morning fog floor, so the poster continues seamlessly below
+        s += ('<rect x="-10" y="288" width="900" height="20" fill="#EFF5EC" opacity=".85" '
+              'filter="url(#f_mist)"/>'
+              '<rect x="-10" y="304" width="900" height="16" fill="#EFF5EC"/>')
     s += (
-        f'<text x="56" y="118" font-size="13" fill="{p["prompt"]}">{PROMPT}'
-        f'<tspan class="blink"> █</tspan></text>'
-        f'<text x="56" y="176" font-size="52" font-weight="700" letter-spacing="1" '
+        f'<text x="56" y="170" font-size="38" font-weight="700" letter-spacing="0.5" '
         f'fill="{p["name"]}" filter="url(#f_name)">{NAME}</text>'
-        f'<text x="56" y="206" font-size="14.5" letter-spacing="0.4" fill="{p["tagline"]}">{TAGLINE}</text>'
+        f'<text x="56" y="196" font-size="13" letter-spacing="0.3" fill="{p["tagline"]}">{TAGLINE}</text>'
     )
+    s += season_particles(p, rng)
     (OUT / fname).write_text(s + "</svg>")
 
 
 def button(t, base, kind, label, grey=False, note=None):
-    W, H = 214, 56
+    W, H = 220, 56
     s = svg_open(W, H, label, f"{label} link button.")
+    s += section_bg(t, SEC_BTN, H, w=W)
     if grey:
         box, line, ink, icon = t["gbox"], t["gline"], t["gink"], t["gink"]
     else:
         box, line, ink, icon = t["bbox"], t["bline"], t["bink"], t["icon"]
-    s += f'<rect x="1" y="8" width="212" height="40" rx="6" fill="{box}" stroke="{line}" stroke-width="1.5"/>'
+    s += f'<rect x="4" y="8" width="212" height="40" rx="6" fill="{box}" stroke="{line}" stroke-width="1.5"/>'
     if kind == "pine":
         s += pines_g(28, 40, 20, 7.5, icon)
     elif kind == "play":
@@ -409,7 +468,7 @@ def button(t, base, kind, label, grey=False, note=None):
               f'<path d="M22,23.5 L29,29 L36,23.5" fill="none" stroke="{icon}" stroke-width="1.6" stroke-linejoin="round"/>')
     s += f'<text x="50" y="33" font-size="13.5" fill="{ink}">{label}</text>'
     if note:
-        s += f'<text x="198" y="33" font-size="11" text-anchor="end" fill="{t["gsuf"]}">{note}</text>'
+        s += f'<text x="204" y="33" font-size="11" text-anchor="end" fill="{t["gsuf"]}">{note}</text>'
     (OUT / f"{base}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
@@ -464,8 +523,10 @@ def star_ridges(t):
               f'<stop offset="1" stop-color="{t["icon"]}" stop-opacity="0"/></linearGradient>'
               f'<radialGradient id="g_rg"><stop offset="0" stop-color="{FIREFLY}" stop-opacity=".8"/>'
               f'<stop offset="1" stop-color="{FIREFLY}" stop-opacity="0"/></radialGradient>')
-        s += (f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" '
-              f'fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>')
+        s += section_bg(t, SEC_RIDGE + i * 92, H)
+        if i < 3:
+            s += (f'<rect x="0" y="{H - 1}" width="880" height="1" '
+                  f'fill="{"#D6E1D2" if t["light"] else "#102416"}"/>')
         s += (f'<text x="34" y="38" font-size="15" font-weight="700" fill="{t["ink"]}">{name}</text>'
               f'<text x="34" y="58" font-size="11.5" fill="{t["dim"]}">{desc}</text>')
         s += f'<g class="fade" style="--dd:{1.1 + i * .25:.2f}s"><path d="{area_d}" fill="url(#g_a)"/></g>'
@@ -492,6 +553,62 @@ def star_ridges(t):
         (OUT / f"ridge-{i + 1}{t['sfx']}.svg").write_text(s + "</svg>")
 
 
+def star_range(t):
+    """jdx's cumulative chart ("beyond mise") restyled: every star across all
+    public repos as one mountain range, with an echo ridge behind for depth."""
+    W, H = 880, 150
+    rh = DATA.get("range_history", {})
+    dates = rh.get("starred", [])
+    total = rh.get("total", len(dates))
+    end_m = DATA.get("fetched", "2026-10")[:7]
+    months = _month_range(dates[0][:7] if dates else end_m, end_m)
+    if len(months) > 48:
+        months = months[-48:]
+    while len(months) < 6:
+        months.insert(0, _month_add(months[0], -1))
+    vals = [sum(1 for s_ in dates if s_[:7] <= m) for m in months]
+    vmax = max(vals) or 1
+
+    x0, x1, base, hmax = 34, 846, 128, 96
+    dx = (x1 - x0) / (len(vals) - 1)
+    pts = [(x0 + k * dx, base - (v / vmax) * hmax) for k, v in enumerate(vals)]
+    line_d = smooth_path(pts)
+    area_d = line_d + f" L{x1},{base} L{x0},{base} Z"
+    plen = sum(math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)) * 1.15
+
+    s = svg_open(W, H, "The range",
+                 f"Cumulative stars across all public repos since {months[0]}: {total}.")
+    s += section_bg(t, SEC_RANGE, H)
+    s += (f'<linearGradient id="g_a" x1="0" y1="0" x2="0" y2="1">'
+          f'<stop offset="0" stop-color="{t["icon"]}" stop-opacity=".3"/>'
+          f'<stop offset="1" stop-color="{t["icon"]}" stop-opacity="0"/></linearGradient>'
+          f'<radialGradient id="g_rg"><stop offset="0" stop-color="{FIREFLY}" stop-opacity=".8"/>'
+          f'<stop offset="1" stop-color="{FIREFLY}" stop-opacity="0"/></radialGradient>')
+    echo = "".join(f"{x + 14:.1f},{base - (base - y) * .52:.1f} " for x, y in pts)
+    s += (f'<polygon points="{x0 + 14},{base} {echo}{x1 + 14},{base}" '
+          f'fill="{"#BCD2BF" if t["light"] else "#122A1B"}" opacity=".65"/>')
+    s += f'<g class="fade" style="--dd:1.2s"><path d="{area_d}" fill="url(#g_a)"/></g>'
+    s += (f'<path id="rp" class="draw" style="--len:{plen:.0f};--dd:.3s;'
+          f'stroke-dasharray:{plen:.0f}" d="{line_d}" fill="none" '
+          f'stroke="{t["icon"]}" stroke-width="2" stroke-linecap="round"/>')
+    pines = ""
+    for k in range(2, len(pts) - 2, 4):
+        px, py = pts[k]
+        pines += "".join(f'<polygon points="{q}"/>' for q in pine(px, py + 1, 6, 2.8, tiers=1))
+    s += f'<g class="fade" style="--dd:1.5s" fill="{t["tree2"]}">{pines}</g>'
+    lx, ly = pts[-1]
+    s += (f'<circle cx="{lx:.1f}" cy="{ly:.1f}" r="8" fill="url(#g_rg)" class="ffp" style="--p:3.8s"/>'
+          f'<path transform="translate({lx:.1f},{ly - 1:.1f}) scale(.75)" d="{STAR_PATH}" fill="{t["gold"]}"/>'
+          f'<text x="{lx - 14:.0f}" y="{ly - 10:.0f}" font-size="13" text-anchor="end" '
+          f'fill="{t["ink"]}">{total}</text>')
+    s += (f'<circle r="1.7" fill="{FIREFLY if not t["light"] else t["gold"]}" opacity=".9">'
+          f'<animateMotion dur="16s" begin="2.8s" repeatCount="indefinite">'
+          f'<mpath href="#rp" xlink:href="#rp"/></animateMotion></circle>')
+    if not t["light"]:
+        s += (f'<circle class="ffp" style="--p:5.6s;--dd:2.2s" cx="150" cy="40" r="1.5" fill="{FIREFLY}"/>')
+    (OUT / f"range{t['sfx']}.svg").write_text(s + "</svg>")
+
+
 def contribution_forest(t):
     rng = random.Random(11)
     W, H = 880, 168
@@ -501,15 +618,7 @@ def contribution_forest(t):
 
     s = svg_open(W, H, "Contribution forest",
                  f"One pine per day over the last year; {total} contributions.")
-    s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
-    s += (f'<radialGradient id="g_m"><stop offset="0" stop-color="{t["gold"] if t["light"] else "#CFE7D0"}" stop-opacity=".7"/>'
-          f'<stop offset="1" stop-color="{t["gold"] if t["light"] else "#CFE7D0"}" stop-opacity="0"/></radialGradient>'
-          f'<circle cx="822" cy="30" r="24" fill="url(#g_m)" opacity=".35"/>'
-          f'<circle cx="822" cy="30" r="9" fill="{"#F0D98F" if t["light"] else "#E9F3E3"}"/>')
-    if t["star"]:
-        for _ in range(12):
-            s += (f'<circle cx="{rng.uniform(420, 790):.0f}" cy="{rng.uniform(14, 44):.0f}" '
-                  f'r="{rng.uniform(0.5, 1.0):.1f}" fill="{t["star"]}" opacity="{rng.uniform(.2, .55):.2f}"/>')
+    s += section_bg(t, SEC_CONTRIB, H)
 
     step = 812 / (len(vals) - 1)
     tops = []
@@ -551,7 +660,7 @@ def languages(t):
     rows = [(k, v / total) for k, v in top]
     rows.append(("other", (total - sum(v for _, v in top)) / total))
     s = svg_open(W, H, "Languages", "Language share across all public repos, by bytes of source.")
-    s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
+    s += section_bg(t, SEC_LANG, H)
     for k, (name, share) in enumerate(rows):
         y = 42 + k * 22
         color = LANG_COLORS.get(name, OTHER_COLOR)
@@ -560,13 +669,17 @@ def languages(t):
               f'<rect class="grow" style="--dd:{k * .12:.2f}s" x="150" y="{y - 7}" '
               f'width="{max(3, 620 * share):.1f}" height="8" rx="2" fill="{color}"/>'
               f'<text x="846" y="{y}" font-size="11" text-anchor="end" fill="{t["dim"]}">{share * 100:.1f}%</text>')
+    if not t["light"]:
+        for fx, fy, fp, fd in ((612, 164, 5.2, 1.1), (247, 168, 6.4, 3.0)):
+            s += (f'<circle class="ffp" style="--p:{fp}s;--dd:{fd}s" cx="{fx}" cy="{fy}" '
+                  f'r="1.5" fill="{FIREFLY}"/>')
     (OUT / f"languages{t['sfx']}.svg").write_text(s + "</svg>")
 
 
 def campfire(t):
     W, H = 880, 120
     s = svg_open(W, H, "Campfire", "A campsite. At night the fire burns; by day, smoke and birds.")
-    s += f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="10" fill="{t["panel"]}" stroke="{t["pline"]}" stroke-width="1.5"/>'
+    s += section_bg(t, SEC_FIRE, H)
     s += f'<rect x="24" y="94" width="832" height="1.5" fill="{t["ground"]}"/>'
     s += (f'<polygon points="192,94 230,48 268,94" fill="{t["inset"]}" stroke="{t["iline"]}" stroke-width="1.5"/>'
           f'<line x1="230" y1="48" x2="230" y2="94" stroke="{t["iline"]}" stroke-width="1.2"/>'
@@ -693,6 +806,7 @@ if __name__ == "__main__":
         button(t, "link-sponsor", "heart", "Sponsor", grey=True, note="\u2192 MSF")
         button(t, "link-contact", "mail", "Contact")
         star_ridges(t)
+        star_range(t)
         contribution_forest(t)
         languages(t)
         campfire(t)
