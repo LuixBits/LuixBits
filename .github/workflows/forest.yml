@@ -1,0 +1,32 @@
+name: forest
+
+on:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regrow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: refresh data and re-render
+        env:
+          # METRICS_TOKEN (classic PAT) unlocks the contribution calendar;
+          # without it the stars and languages still refresh and the
+          # committed calendar is kept.
+          GH_TOKEN: ${{ secrets.METRICS_TOKEN || github.token }}
+        run: |
+          python3 generate.py --fetch
+          python3 generate.py --out assets
+
+      - name: commit if the forest changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets data.json
+          git diff --cached --quiet || { git commit -m "chore: the forest regrows [skip ci]"; git push; }
