@@ -14,7 +14,7 @@
 <a href="https://www.youtube.com/watch?v=JdlnNK9S5Xw"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-1.svg"><img src="assets/videos-1-light.svg" width="100%" align="top" alt="Video: How to Use nix build (NixOS Tutorial) (3 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=KEhwL6KiTKs"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-2.svg"><img src="assets/videos-2-light.svg" width="100%" align="top" alt="Video: I Broke NixOS on Purpose #NixOS #Nix (28 Sep 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=sUqo2BUhJzU"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-3.svg"><img src="assets/videos-3-light.svg" width="100%" align="top" alt="Video: Commit Your flake.lock #NixOS #Nix (27 Sep 2026)"></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 44 profile visitors so far."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 45 profile visitors so far."></picture>
 </p>
 
 <details><summary>more stats</summary>
