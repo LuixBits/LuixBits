@@ -14,7 +14,7 @@
 <a href="https://www.youtube.com/watch?v=uxa2oeUaEXU"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-1.svg"><img src="assets/videos-1-light.svg" width="100%" align="top" alt="Video: Steam and NixOS = simple (8 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=4DwON-i-bdI"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-2.svg"><img src="assets/videos-2-light.svg" width="100%" align="top" alt="Video: I never installed a GPU driver (8 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=sLgWPGDrI7Y"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-3.svg"><img src="assets/videos-3-light.svg" width="100%" align="top" alt="Video: Star Citizen runs on NixOS (8 Oct 2026)"></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 53 profile visitors so far."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 54 profile visitors so far."></picture>
 </p>
 
 <details><summary>more stats</summary>
