@@ -14,7 +14,7 @@
 <a href="https://www.youtube.com/watch?v=v9U_RiggfKQ"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-1.svg"><img src="assets/videos-1-light.svg" width="100%" align="top" alt="Video: I Built a Flashcard App Inside Neovim (17 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=jm-4-KUFEpk"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-2.svg"><img src="assets/videos-2-light.svg" width="100%" align="top" alt="Video: I Use Herdr Every Day on NixOS (16 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=HK9mySPI9f4"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-3.svg"><img src="assets/videos-3-light.svg" width="100%" align="top" alt="Video: Use Linux tools temporarily with nix shell (10 Oct 2026)"></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 69 profile visitors so far."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 70 profile visitors so far."></picture>
 </p>
 
 <details><summary>more stats</summary>
