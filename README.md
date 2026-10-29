@@ -14,7 +14,7 @@
 <a href="https://www.youtube.com/watch?v=zKuHSzSGZ7A"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-1.svg"><img src="assets/videos-1-light.svg" width="100%" align="top" alt="Video: LuixBits Live Stream (24 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=Hx2kY5pTuQc"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-2.svg"><img src="assets/videos-2-light.svg" width="100%" align="top" alt="Video: Obsidian vs Neorg: Why I Use Neovim for Notes (24 Oct 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=v9U_RiggfKQ"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-3.svg"><img src="assets/videos-3-light.svg" width="100%" align="top" alt="Video: I Built a Flashcard App Inside Neovim (17 Oct 2026)"></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 98 profile visitors so far."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 104 profile visitors so far."></picture>
 </p>
 
 <details><summary>more stats</summary>
