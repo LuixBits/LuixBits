@@ -14,7 +14,7 @@
 <a href="https://www.youtube.com/watch?v=u4bbse91LBo"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-1.svg"><img src="assets/videos-1-light.svg" width="100%" align="top" alt="Video: A 6 GB model with a runtime catch, plus Nix and KDE news (22 Nov 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=g6VkEIbKPEI"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-2.svg"><img src="assets/videos-2-light.svg" width="100%" align="top" alt="Video: jq: Turn a JSON report into an answer (17 Nov 2026)"></picture></a>
 <a href="https://www.youtube.com/watch?v=0wTJKvEoU90"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/videos-3.svg"><img src="assets/videos-3-light.svg" width="100%" align="top" alt="Video: Blender 5.3, SteamOS VRR &amp; Moose Documents | Open Source News (15 Nov 2026)"></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 146 profile visitors so far."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/campfire.svg"><img src="assets/campfire-light.svg" width="100%" align="top" alt="A campsite: tent, campfire, pines and a blinking owl. 147 profile visitors so far."></picture>
 </p>
 
 <details><summary>more stats</summary>
